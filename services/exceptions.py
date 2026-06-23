@@ -1,5 +1,6 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+class ApplicationNotFound(Exception):
+    pass
 
-db = SQLAlchemy()
-migrate = Migrate()
+
+class DuplicateApplication(Exception):
+    pass

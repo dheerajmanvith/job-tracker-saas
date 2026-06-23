@@ -1,4 +1,13 @@
+from enum import Enum
+
 from extensions import db
+
+
+class Status(Enum):
+    APPLIED = "Applied"
+    INTERVIEW = "Interview"
+    REJECTED = "Rejected"
+    OFFER = "Offer"
 
 
 class JobApplication(db.Model):
@@ -22,7 +31,7 @@ class JobApplication(db.Model):
     status = db.Column(
         db.String(50),
         nullable=False,
-        default="Applied"
+        default=Status.APPLIED.value
     )
 
     resume_path = db.Column(
