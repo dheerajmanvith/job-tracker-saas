@@ -1,14 +1,4 @@
-from app import db
-from datetime import datetime
-import enum
-
-
-class Status(enum.Enum):
-    APPLIED = "Applied"
-    PHONE_SCREEN = "Phone Screen"
-    INTERVIEW = "Interview"
-    OFFER = "Offer"
-    REJECTED = "Rejected"
+from extensions import db
 
 
 class JobApplication(db.Model):
@@ -30,19 +20,18 @@ class JobApplication(db.Model):
     )
 
     status = db.Column(
-        db.Enum(Status),
+        db.String(50),
         nullable=False,
-        default=Status.APPLIED
+        default="Applied"
     )
 
-    applied_date = db.Column(
-        db.DateTime,
-        default=datetime.utcnow
+    resume_path = db.Column(
+        db.String(255)
     )
 
-    notes = db.Column(db.Text)
-
-    user_id = db.Column(
-        db.Integer,
-        db.ForeignKey("users.id")
-    )
+    def __repr__(self):
+        return (
+            f"<JobApplication "
+            f"{self.company} - "
+            f"{self.role}>"
+        )
