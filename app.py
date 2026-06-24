@@ -1,4 +1,11 @@
-from flask import Flask
+from flask import (
+    Flask,
+    send_from_directory
+)
+
+from flask_swagger_ui import (
+    get_swaggerui_blueprint
+)
 
 from config import Config
 
@@ -57,12 +64,43 @@ app.register_blueprint(
     auth_bp
 )
 
+# ----------------------------
+# Swagger Configuration
+# ----------------------------
+
+SWAGGER_URL = "/docs"
+API_URL = "/swagger/swagger.json"
+
+swaggerui_blueprint = (
+    get_swaggerui_blueprint(
+        SWAGGER_URL,
+        API_URL,
+        config={
+            "app_name": "Job Tracker SaaS"
+        }
+    )
+)
+
+app.register_blueprint(
+    swaggerui_blueprint,
+    url_prefix=SWAGGER_URL
+)
+
+
+@app.route("/swagger/swagger.json")
+def swagger_json():
+
+    return send_from_directory(
+        "swagger",
+        "swagger.json"
+    )
+
 
 @app.route("/")
 def home():
 
     return (
-        "Day 7 JWT Authentication Running!"
+        "Day 8 CRUD APIs + Swagger Running!"
     )
 
 

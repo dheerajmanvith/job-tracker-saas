@@ -11,6 +11,7 @@ class Status(Enum):
 
 
 class JobApplication(db.Model):
+
     __tablename__ = "job_applications"
 
     id = db.Column(
@@ -38,7 +39,14 @@ class JobApplication(db.Model):
         db.String(255)
     )
 
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False
+    )
+
     def __repr__(self):
+
         return (
             f"<JobApplication "
             f"{self.company} - "

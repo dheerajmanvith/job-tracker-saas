@@ -1,24 +1,20 @@
 from flask import (
     Blueprint,
     request,
-    jsonify,
-    send_from_directory
+    jsonify
 )
 
-from marshmallow import ValidationError
-
-from schemas.application_schema import (
-    ApplicationSchema
+from flask_jwt_extended import (
+    jwt_required,
+    get_jwt_identity
 )
 
-from services.file_service import (
-    FileService
+from services.application_service import (
+    ApplicationService
 )
-
-from extensions import db
 
 from models.job_application import (
-    JobApplication
+    Status
 )
 
 application_bp = Blueprint(
@@ -27,204 +23,170 @@ application_bp = Blueprint(
 )
 
 
-# ------------------------------------
-# Day 4 - Validation Endpoint
-# ------------------------------------
 @application_bp.route(
     "/api/applications",
     methods=["POST"]
 )
+@jwt_required()
 def create_application():
 
-    schema = ApplicationSchema()
-
-    try:
-
-        data = schema.load(
-            request.get_json()
-        )
-
-        return jsonify(
-            {
-                "message": "Validation Passed",
-                "data": data
-            }
-        )
-
-    except ValidationError as err:
-
-        return jsonify(
-            {
-                "error": "Validation Error",
-                "details": err.messages,
-                "status_code": 400
-            }
-        ), 400
-
-
-# ------------------------------------
-# Day 5 - Upload Resume Only
-# ------------------------------------
-@application_bp.route(
-    "/api/upload",
-    methods=["POST"]
-)
-def upload_resume():
-
-    if "file" not in request.files:
-
-        return jsonify(
-            {
-                "error": "No file uploaded"
-            }
-        ), 400
-
-    file = request.files["file"]
-
-    if file.filename == "":
-
-        return jsonify(
-            {
-                "error": "No file selected"
-            }
-        ), 400
-
-    filepath = FileService.save_file(
-        file
+    current_user = int(
+        get_jwt_identity()
     )
 
-    return jsonify(
-        {
-            "message": "Upload successful",
-            "path": filepath
-        }
-    )
+    data = request.get_json()
 
-
-# ------------------------------------
-# Day 5 - Serve Uploaded Files
-# ------------------------------------
-@application_bp.route(
-    "/files/<filename>",
-    methods=["GET"]
-)
-def get_file(filename):
-
-    return send_from_directory(
-        "uploads",
-        filename
-    )
-
-
-# ------------------------------------
-# Day 5 - Extract PDF Text
-# ------------------------------------
-@application_bp.route(
-    "/api/extract/<filename>",
-    methods=["GET"]
-)
-def extract_resume_text(filename):
-
-    filepath = f"uploads/{filename}"
-
-    try:
-
-        text = FileService.extract_text(
-            filepath
-        )
-
-        return jsonify(
-            {
-                "filename": filename,
-                "text": text[:2000]
-            }
-        )
-
-    except Exception as e:
-
-        return jsonify(
-            {
-                "error": str(e)
-            }
-        ), 500
-
-
-# ------------------------------------
-# Day 5 - Create Application + Resume
-# ------------------------------------
-@application_bp.route(
-    "/api/application-with-resume",
-    methods=["POST"]
-)
-def create_application_with_resume():
-
-    if "file" not in request.files:
-
-        return jsonify(
-            {
-                "error": "Resume file required"
-            }
-        ), 400
-
-    file = request.files["file"]
-
-    if file.filename == "":
-
-        return jsonify(
-            {
-                "error": "No file selected"
-            }
-        ), 400
-
-    company = request.form.get(
+    company = data.get(
         "company"
     )
 
-    role = request.form.get(
+    role = data.get(
         "role"
     )
 
-    if not company or not role:
-
-        return jsonify(
-            {
-                "error": "company and role are required"
-            }
-        ), 400
-
-    filepath = FileService.save_file(
-        file
+    status = data.get(
+        "status",
+        "Applied"
     )
 
-    application = JobApplication(
-        company=company,
-        role=role,
-        status="Applied",
-        resume_path=filepath
+    application = (
+        ApplicationService.create_application(
+            company=company,
+            role=role,
+            status=status,
+            user_id=current_user
+        )
     )
-
-    db.session.add(
-        application
-    )
-
-    db.session.commit()
 
     return jsonify(
         {
-            "message": "Application created successfully",
-            "application_id": application.id,
-            "company": application.company,
-            "role": application.role,
-            "resume_path": application.resume_path
+            "message":
+            "Application created successfully",
+            "id":
+            application.id
         }
     ), 201
 
 
-@application_bp.route("/test-db")
-def test_db():
+@application_bp.route(
+    "/api/applications",
+    methods=["GET"]
+)
+@jwt_required()
+def list_applications():
+
+    current_user = int(
+        get_jwt_identity()
+    )
+
+    applications = (
+        ApplicationService.list_applications(
+            current_user
+        )
+    )
+
+    results = []
+
+    for app in applications:
+
+        results.append(
+            {
+                "id": app.id,
+                "company": app.company,
+                "role": app.role,
+                "status": app.status,
+                "resume_path": app.resume_path
+            }
+        )
+
+    return jsonify(results)
+
+
+@application_bp.route(
+    "/api/applications/<int:application_id>",
+    methods=["GET"]
+)
+@jwt_required()
+def get_application(
+    application_id
+):
+
+    current_user = int(
+        get_jwt_identity()
+    )
+
+    app = (
+        ApplicationService.get_application(
+            application_id,
+            current_user
+        )
+    )
 
     return jsonify(
         {
-            "db_id": id(db)
+            "id": app.id,
+            "company": app.company,
+            "role": app.role,
+            "status": app.status,
+            "resume_path": app.resume_path
+        }
+    )
+
+
+@application_bp.route(
+    "/api/applications/<int:application_id>",
+    methods=["PUT"]
+)
+@jwt_required()
+def update_application(
+    application_id
+):
+
+    current_user = int(
+        get_jwt_identity()
+    )
+
+    data = request.get_json()
+
+    app = (
+        ApplicationService.update_application(
+            application_id,
+            current_user,
+            **data
+        )
+    )
+
+    return jsonify(
+        {
+            "message":
+            "Application updated",
+            "id":
+            app.id
+        }
+    )
+
+
+@application_bp.route(
+    "/api/applications/<int:application_id>",
+    methods=["DELETE"]
+)
+@jwt_required()
+def delete_application(
+    application_id
+):
+
+    current_user = int(
+        get_jwt_identity()
+    )
+
+    ApplicationService.delete_application(
+        application_id,
+        current_user
+    )
+
+    return jsonify(
+        {
+            "message":
+            "Application deleted"
         }
     )

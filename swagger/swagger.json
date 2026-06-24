@@ -1,0 +1,50 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Job Tracker SaaS API",
+    "version": "1.0"
+  },
+  "basePath": "/",
+  "schemes": ["http"],
+  "paths": {
+    "/api/applications": {
+      "get": {
+        "summary": "Get all applications"
+      },
+      "post": {
+        "summary": "Create application"
+      }
+    },
+    "/api/applications/{id}": {
+      "get": {
+        "summary": "Get application by id"
+      },
+      "patch": {
+        "summary": "Update application"
+      },
+      "delete": {
+        "summary": "Delete application"
+      }
+    },
+    "/api/applications/stats": {
+      "get": {
+        "summary": "Get application statistics"
+      }
+    },
+    "/register": {
+      "post": {
+        "summary": "Register user"
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Login user"
+      }
+    },
+    "/profile": {
+      "get": {
+        "summary": "Protected profile endpoint"
+      }
+    }
+  }
+}

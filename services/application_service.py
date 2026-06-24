@@ -14,18 +14,25 @@ from services.exceptions import (
 class ApplicationService:
 
     @staticmethod
-    def list_applications():
-        return JobApplication.query.all()
+    def list_applications(user_id):
+
+        return JobApplication.query.filter_by(
+            user_id=user_id
+        ).all()
 
     @staticmethod
-    def get_application(application_id):
+    def get_application(
+        application_id,
+        user_id
+    ):
 
-        application = db.session.get(
-            JobApplication,
-            application_id
-        )
+        application = JobApplication.query.filter_by(
+            id=application_id,
+            user_id=user_id
+        ).first()
 
         if not application:
+
             raise ApplicationNotFound(
                 f"Application {application_id} not found"
             )
@@ -36,16 +43,19 @@ class ApplicationService:
     def create_application(
         company,
         role,
+        user_id,
         status=Status.APPLIED,
         resume_path=None
     ):
 
         existing = JobApplication.query.filter_by(
             company=company,
-            role=role
+            role=role,
+            user_id=user_id
         ).first()
 
         if existing:
+
             raise DuplicateApplication(
                 "Application already exists"
             )
@@ -53,6 +63,7 @@ class ApplicationService:
         application = JobApplication(
             company=company,
             role=role,
+            user_id=user_id,
             status=(
                 status.value
                 if isinstance(status, Status)
@@ -69,12 +80,14 @@ class ApplicationService:
     @staticmethod
     def update_application(
         application_id,
+        user_id,
         **kwargs
     ):
 
         application = (
             ApplicationService.get_application(
-                application_id
+                application_id,
+                user_id
             )
         )
 
@@ -100,12 +113,14 @@ class ApplicationService:
 
     @staticmethod
     def delete_application(
-        application_id
+        application_id,
+        user_id
     ):
 
         application = (
             ApplicationService.get_application(
-                application_id
+                application_id,
+                user_id
             )
         )
 
