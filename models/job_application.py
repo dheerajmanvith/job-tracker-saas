@@ -11,7 +11,6 @@ class Status(Enum):
 
 
 class JobApplication(db.Model):
-
     __tablename__ = "job_applications"
 
     id = db.Column(
@@ -46,9 +45,4 @@ class JobApplication(db.Model):
     )
 
     def __repr__(self):
-
-        return (
-            f"<JobApplication "
-            f"{self.company} - "
-            f"{self.role}>"
-        )
+        return f"<JobApplication {self.company} - {self.role}>"

@@ -13,15 +13,22 @@ from extensions import (
     db,
     migrate,
     jwt,
-    cache
+    cache,
+    mail
 )
+
+from scheduler import start_scheduler
 
 app = Flask(__name__)
 
-app.config.from_object(
-    Config
-)
+# -------------------------------------------------
+# Load Configuration
+# -------------------------------------------------
+app.config.from_object(Config)
 
+# -------------------------------------------------
+# Initialize Extensions
+# -------------------------------------------------
 db.init_app(app)
 
 migrate.init_app(
@@ -33,6 +40,11 @@ jwt.init_app(app)
 
 cache.init_app(app)
 
+mail.init_app(app)
+
+# -------------------------------------------------
+# Import Models
+# -------------------------------------------------
 with app.app_context():
 
     import models
@@ -41,31 +53,37 @@ with app.app_context():
         TokenBlocklist
     )
 
-
+# -------------------------------------------------
+# JWT Token Blocklist Checker
+# -------------------------------------------------
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(
-        jwt_header,
-        jwt_payload):
+    jwt_header,
+    jwt_payload
+):
 
     jti = jwt_payload["jti"]
 
-    token = (
-        TokenBlocklist.query.filter_by(
-            jti=jti
-        ).first()
-    )
+    token = TokenBlocklist.query.filter_by(
+        jti=jti
+    ).first()
 
     return token is not None
 
 
+# -------------------------------------------------
+# Register Error Handlers
+# -------------------------------------------------
 from services.error_handlers import (
     register_error_handlers
 )
 
-register_error_handlers(
-    app
-)
+register_error_handlers(app)
 
+
+# -------------------------------------------------
+# Register Blueprints
+# -------------------------------------------------
 from api.application_routes import (
     application_bp
 )
@@ -78,33 +96,33 @@ from api.jobs_routes import (
     jobs_bp
 )
 
-app.register_blueprint(
-    application_bp
+from api.email_routes import (
+    email_bp
 )
 
-app.register_blueprint(
-    auth_bp
-)
+app.register_blueprint(application_bp)
+
+app.register_blueprint(auth_bp)
+
+app.register_blueprint(jobs_bp)
 
 app.register_blueprint(
-    jobs_bp
+    email_bp,
+    url_prefix="/email"
 )
 
+# -------------------------------------------------
+# Swagger UI
+# -------------------------------------------------
 SWAGGER_URL = "/docs"
+API_URL = "/swagger/swagger.json"
 
-API_URL = (
-    "/swagger/swagger.json"
-)
-
-swaggerui_blueprint = (
-    get_swaggerui_blueprint(
-        SWAGGER_URL,
-        API_URL,
-        config={
-            "app_name":
-            "Job Tracker SaaS"
-        }
-    )
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        "app_name": "Job Tracker SaaS"
+    }
 )
 
 app.register_blueprint(
@@ -113,9 +131,7 @@ app.register_blueprint(
 )
 
 
-@app.route(
-    "/swagger/swagger.json"
-)
+@app.route("/swagger/swagger.json")
 def swagger_json():
 
     return send_from_directory(
@@ -127,11 +143,18 @@ def swagger_json():
 @app.route("/")
 def home():
 
-    return (
-        "Job Tracker SaaS Running!"
-    )
+    return "Job Tracker SaaS Running!"
 
 
+# -------------------------------------------------
+# Start APScheduler
+# -------------------------------------------------
+start_scheduler(app)
+
+
+# -------------------------------------------------
+# Run Application
+# -------------------------------------------------
 if __name__ == "__main__":
 
     app.run(
