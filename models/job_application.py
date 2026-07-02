@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 
 from extensions import db
@@ -36,6 +37,12 @@ class JobApplication(db.Model):
 
     resume_path = db.Column(
         db.String(255)
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=datetime.utcnow
     )
 
     user_id = db.Column(

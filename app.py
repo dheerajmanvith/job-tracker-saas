@@ -80,7 +80,6 @@ from services.error_handlers import (
 
 register_error_handlers(app)
 
-
 # -------------------------------------------------
 # Register Blueprints
 # -------------------------------------------------
@@ -100,9 +99,12 @@ from api.email_routes import (
     email_bp
 )
 
-# ✅ NEW
 from api.csv_routes import (
     csv_bp
+)
+
+from api.analytics_routes import (
+    analytics_bp
 )
 
 app.register_blueprint(application_bp)
@@ -116,8 +118,12 @@ app.register_blueprint(
     url_prefix="/email"
 )
 
-# ✅ NEW
 app.register_blueprint(csv_bp)
+
+app.register_blueprint(
+    analytics_bp,
+    url_prefix="/api"
+)
 
 # -------------------------------------------------
 # Swagger UI
