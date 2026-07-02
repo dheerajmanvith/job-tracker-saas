@@ -100,6 +100,11 @@ from api.email_routes import (
     email_bp
 )
 
+# ✅ NEW
+from api.csv_routes import (
+    csv_bp
+)
+
 app.register_blueprint(application_bp)
 
 app.register_blueprint(auth_bp)
@@ -110,6 +115,9 @@ app.register_blueprint(
     email_bp,
     url_prefix="/email"
 )
+
+# ✅ NEW
+app.register_blueprint(csv_bp)
 
 # -------------------------------------------------
 # Swagger UI
