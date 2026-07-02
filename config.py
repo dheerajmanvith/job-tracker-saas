@@ -1,9 +1,10 @@
 import os
+from dotenv import load_dotenv, find_dotenv
 
-from dotenv import load_dotenv
+dotenv_path = find_dotenv()
+print("DOTENV PATH:", dotenv_path)
 
-load_dotenv()
-
+load_dotenv(dotenv_path, override=True)
 
 class Config:
 
