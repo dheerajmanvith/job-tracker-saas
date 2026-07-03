@@ -13,6 +13,10 @@ from services.application_service import (
     ApplicationService
 )
 
+from services.webhook_service import (
+    WebhookService
+)
+
 from models.job_application import (
     Status
 )
@@ -58,12 +62,21 @@ def create_application():
         )
     )
 
+    WebhookService.send(
+        "application.created",
+        {
+            "id": application.id,
+            "company": application.company,
+            "role": application.role,
+            "status": application.status,
+            "user_id": current_user
+        }
+    )
+
     return jsonify(
         {
-            "message":
-            "Application created successfully",
-            "id":
-            application.id
+            "message": "Application created successfully",
+            "id": application.id
         }
     ), 201
 
@@ -156,12 +169,21 @@ def update_application(
         )
     )
 
+    WebhookService.send(
+        "application.updated",
+        {
+            "id": app.id,
+            "company": app.company,
+            "role": app.role,
+            "status": app.status,
+            "user_id": current_user
+        }
+    )
+
     return jsonify(
         {
-            "message":
-            "Application updated",
-            "id":
-            app.id
+            "message": "Application updated",
+            "id": app.id
         }
     )
 
@@ -179,14 +201,31 @@ def delete_application(
         get_jwt_identity()
     )
 
+    app = (
+        ApplicationService.get_application(
+            application_id,
+            current_user
+        )
+    )
+
     ApplicationService.delete_application(
         application_id,
         current_user
     )
 
-    return jsonify(
+    WebhookService.send(
+        "application.deleted",
         {
-            "message":
-            "Application deleted"
+            "id": app.id,
+            "company": app.company,
+            "role": app.role,
+            "status": app.status,
+            "user_id": current_user
         }
     )
+
+    return jsonify(
+        {
+            "message": "Application deleted"
+        }
+    ), 200
