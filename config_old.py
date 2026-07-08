@@ -13,6 +13,10 @@ class Config:
     )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    CELERY_BROKER_URL = "redis://localhost:6379/0"
+    
+    CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 
     JWT_SECRET_KEY = os.getenv(
         "JWT_SECRET_KEY",
@@ -64,7 +68,7 @@ class Config:
     # Webhook Configuration
     # -----------------------------
 
-WEBHOOK_URL = os.getenv(
+    WEBHOOK_URL = os.getenv(
     "WEBHOOK_URL",
     "https://webhook.site/9cb84781-69f8-41e8-b829-09a4029734c2"
 )

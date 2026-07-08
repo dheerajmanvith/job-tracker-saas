@@ -1,7 +1,10 @@
 from flask import (
     Flask,
     send_from_directory,
-    jsonify)
+    jsonify
+)
+
+from api.resume_routes import resume_bp
 
 from flask_swagger_ui import (
     get_swaggerui_blueprint
@@ -21,7 +24,6 @@ from extensions import (
     limiter
 )
 
-
 from scheduler import start_scheduler
 
 app = Flask(__name__)
@@ -34,12 +36,14 @@ app.config.from_object(Config)
 # -------------------------------------------------
 # Security
 # -------------------------------------------------
-
 Talisman(
     app,
     force_https=False,
     content_security_policy=None
 )
+
+# Enable CORS
+CORS(app)
 
 # -------------------------------------------------
 # Initialize Extensions
@@ -58,6 +62,10 @@ cache.init_app(app)
 mail.init_app(app)
 
 limiter.init_app(app)
+
+# -------------------------------------------------
+# Initialize Celery
+# -------------------------------------------------
 
 # -------------------------------------------------
 # Import Models
@@ -133,6 +141,11 @@ app.register_blueprint(
     email_bp,
     url_prefix="/email"
 )
+app.register_blueprint(
+    resume_bp,
+    url_prefix="/api"
+)
+
 
 app.register_blueprint(csv_bp)
 
@@ -171,7 +184,10 @@ def swagger_json():
 @app.route("/")
 def home():
 
-    return "Job Tracker SaaS Running!"
+    return jsonify({
+        "message": "Job Tracker SaaS Running!",
+        "status": "success"
+    })
 
 # -------------------------------------------------
 # Start APScheduler

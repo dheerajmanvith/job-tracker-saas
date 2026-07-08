@@ -1,15 +1,12 @@
 import os
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
 
 class Config:
 
-    # -------------------------
-    # Database
-    # -------------------------
+    SECRET_KEY = os.getenv(
+        "SECRET_KEY",
+        "super-secret-key"
+    )
 
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "DATABASE_URL"
@@ -17,41 +14,12 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # -------------------------
-    # JWT
-    # -------------------------
-
     JWT_SECRET_KEY = os.getenv(
         "JWT_SECRET_KEY",
-        "super-secret-key"
+        "jwt-secret-key"
     )
 
-    # -------------------------
-    # Adzuna API
-    # -------------------------
-
-    ADZUNA_APP_ID = os.getenv(
-        "ADZUNA_APP_ID"
-    )
-
-    ADZUNA_APP_KEY = os.getenv(
-        "ADZUNA_APP_KEY"
-    )
-
-    # -------------------------
-    # Redis Cache
-    # -------------------------
-
-    CACHE_TYPE = "RedisCache"
-
-    CACHE_REDIS_URL = os.getenv(
-        "REDIS_URL",
-        "redis://localhost:6379/0"
-    )
-
-    # -------------------------
-    # Mail Configuration
-    # -------------------------
+    CACHE_TYPE = "SimpleCache"
 
     MAIL_SERVER = os.getenv(
         "MAIL_SERVER"
@@ -76,16 +44,46 @@ class Config:
         os.getenv(
             "MAIL_USE_TLS",
             "True"
-        ) == "True"
+        )
+        == "True"
     )
 
     MAIL_USE_SSL = (
         os.getenv(
             "MAIL_USE_SSL",
             "False"
-        ) == "True"
+        )
+        == "True"
     )
 
     MAIL_DEFAULT_SENDER = os.getenv(
         "MAIL_DEFAULT_SENDER"
+    )
+
+    # -----------------------------
+    # Webhook Configuration
+    # -----------------------------
+
+    WEBHOOK_URL = os.getenv(
+    "WEBHOOK_URL",
+    "https://webhook.site/9cb84781-69f8-41e8-b829-09a4029734c2"
+)
+    WEBHOOK_SECRET = os.getenv(
+
+        "WEBHOOK_SECRET",
+
+        "job-tracker-secret"
+
+    )
+
+    # -----------------------------
+    # Slack Configuration
+    # -----------------------------
+
+    SLACK_WEBHOOK_URL = os.getenv(
+
+        "SLACK_WEBHOOK_URL",
+
+        ""
+
     )
