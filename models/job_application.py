@@ -32,7 +32,8 @@ class JobApplication(db.Model):
     status = db.Column(
         db.String(50),
         nullable=False,
-        default=Status.APPLIED.value
+        default=Status.APPLIED.value,
+        index=True
     )
 
     resume_path = db.Column(
@@ -42,13 +43,15 @@ class JobApplication(db.Model):
     created_at = db.Column(
         db.DateTime,
         nullable=False,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        index=True
     )
 
     user_id = db.Column(
         db.Integer,
         db.ForeignKey("users.id"),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     def __repr__(self):

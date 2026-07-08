@@ -1,7 +1,10 @@
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required
 
-from extensions import limiter
+from extensions import (
+    limiter,
+    cache
+)
 
 from services.analytics_service import AnalyticsService
 from services.audit_service import AuditService
@@ -17,23 +20,25 @@ analytics_bp = Blueprint(
     methods=["GET"]
 )
 @limiter.limit("30 per minute")
+@cache.cached(timeout=300)
 def get_analytics():
 
+    applications = AnalyticsService.get_applications()
+
     return jsonify({
-        "total_applications": len(
-            AnalyticsService.get_applications()
-        ),
+        "total_applications": len(applications),
+
         "applications_per_status":
-            AnalyticsService.get_status_counts(),
+            AnalyticsService.get_status_counts(applications),
 
         "response_rate":
-            AnalyticsService.get_response_rate(),
+            AnalyticsService.get_response_rate(applications),
 
         "best_day_to_apply":
-            AnalyticsService.get_best_day_to_apply(),
+            AnalyticsService.get_best_day_to_apply(applications),
 
         "average_days_per_status":
-            AnalyticsService.get_average_days_per_status()
+            AnalyticsService.get_average_days_per_status(applications)
     }), 200
 
 

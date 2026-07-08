@@ -23,7 +23,15 @@ class Config:
         "jwt-secret-key"
     )
 
-    CACHE_TYPE = "SimpleCache"
+# -----------------------------
+# Cache Configuration (Redis)
+# -----------------------------
+
+    CACHE_TYPE = "RedisCache"
+    CACHE_REDIS_HOST = "localhost"
+    CACHE_REDIS_PORT = 6379
+    CACHE_REDIS_DB = 0
+    CACHE_DEFAULT_TIMEOUT = 300
 
     MAIL_SERVER = os.getenv(
         "MAIL_SERVER"

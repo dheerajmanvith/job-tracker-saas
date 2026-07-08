@@ -11,8 +11,7 @@ class AnalyticsService:
         return JobApplication.query.all()
 
     @staticmethod
-    def get_status_counts():
-        applications = AnalyticsService.get_applications()
+    def get_status_counts(applications):
 
         status_counts = {}
 
@@ -23,8 +22,9 @@ class AnalyticsService:
         return status_counts
 
     @staticmethod
-    def get_response_rate():
-        status_counts = AnalyticsService.get_status_counts()
+    def get_response_rate(applications):
+
+        status_counts = AnalyticsService.get_status_counts(applications)
 
         total = sum(status_counts.values())
 
@@ -39,8 +39,7 @@ class AnalyticsService:
         return round((responded / total) * 100, 2)
 
     @staticmethod
-    def get_best_day_to_apply():
-        applications = AnalyticsService.get_applications()
+    def get_best_day_to_apply(applications):
 
         days = [
             application.created_at.strftime("%A")
@@ -54,24 +53,30 @@ class AnalyticsService:
         return Counter(days).most_common(1)[0][0]
 
     @staticmethod
-    def get_average_days_per_status():
-        applications = AnalyticsService.get_applications()
+    def get_average_days_per_status(applications):
 
         status_days = {}
 
         now = datetime.utcnow()
 
         for application in applications:
+
             if not application.created_at:
                 continue
 
             days = (now - application.created_at).days
 
-            status_days.setdefault(application.status, []).append(days)
+            status_days.setdefault(
+                application.status,
+                []
+            ).append(days)
 
         averages = {}
 
         for status, values in status_days.items():
-            averages[status] = round(sum(values) / len(values), 2)
+            averages[status] = round(
+                sum(values) / len(values),
+                2
+            )
 
         return averages

@@ -12,9 +12,11 @@ migrate = Migrate()
 jwt = JWTManager()
 
 cache = Cache()
+
 mail = Mail()
 
 limiter = Limiter(
     key_func=get_remote_address,
-    default_limits=["100 per minute"]
+    default_limits=["100 per minute"],
+    storage_uri="redis://localhost:6379/0"
 )
