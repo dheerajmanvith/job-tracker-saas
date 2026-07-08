@@ -1,3 +1,4 @@
+API_VERSION = "2.0.0"
 from flask import (
     Blueprint,
     request,
@@ -22,13 +23,17 @@ from services.exceptions import (
 )
 
 application_bp = Blueprint(
-    "applications",
-    __name__
+    "applications_v2",
+    __name__,
+    url_prefix="/api/v2"
 )
 
+# -----------------------------
+# List Applications
+# -----------------------------
 
 @application_bp.route(
-    "/api/applications",
+    "/applications",
     methods=["GET"]
 )
 @limiter.limit(
@@ -50,12 +55,42 @@ def list_applications():
         )
     )
 
+    format_type = request.args.get(
+        "format",
+        "full"
+    )
+
     applications = (
         ApplicationService.list_applications(
             page,
             per_page
         )
     )
+
+    if format_type.lower() == "summary":
+
+        return jsonify(
+            {
+                "total":
+                applications.total,
+
+                "applications":
+                [
+                    {
+                        "id":
+                        app.id,
+
+                        "company":
+                        app.company,
+
+                        "status":
+                        app.status.value
+                    }
+
+                    for app in applications.items
+                ]
+            }
+        )
 
     return jsonify(
         {
@@ -93,8 +128,12 @@ def list_applications():
     )
 
 
+# -----------------------------
+# Get Application
+# -----------------------------
+
 @application_bp.route(
-    "/api/applications/<int:application_id>",
+    "/applications/<int:application_id>",
     methods=["GET"]
 )
 @limiter.limit(
@@ -143,8 +182,12 @@ def get_application(
         ), 404
 
 
+# -----------------------------
+# Create Application
+# -----------------------------
+
 @application_bp.route(
-    "/api/applications",
+    "/applications",
     methods=["POST"]
 )
 @limiter.limit(
@@ -187,8 +230,12 @@ def create_application():
         ), 400
 
 
+# -----------------------------
+# Update Application
+# -----------------------------
+
 @application_bp.route(
-    "/api/applications/<int:application_id>",
+    "/applications/<int:application_id>",
     methods=["PATCH"]
 )
 @limiter.limit(
@@ -217,8 +264,12 @@ def update_application(
     )
 
 
+# -----------------------------
+# Delete Application
+# -----------------------------
+
 @application_bp.route(
-    "/api/applications/<int:application_id>",
+    "/applications/<int:application_id>",
     methods=["DELETE"]
 )
 @limiter.limit(
@@ -239,8 +290,12 @@ def delete_application(
     )
 
 
+# -----------------------------
+# Application Statistics
+# -----------------------------
+
 @application_bp.route(
-    "/api/applications/stats",
+    "/applications/stats",
     methods=["GET"]
 )
 @limiter.limit(

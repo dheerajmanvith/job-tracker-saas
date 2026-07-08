@@ -1,5 +1,9 @@
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 class Config:
 
@@ -13,10 +17,6 @@ class Config:
     )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
-    CELERY_BROKER_URL = "redis://localhost:6379/0"
-    
-    CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 
     JWT_SECRET_KEY = os.getenv(
         "JWT_SECRET_KEY",
@@ -69,15 +69,12 @@ class Config:
     # -----------------------------
 
     WEBHOOK_URL = os.getenv(
-    "WEBHOOK_URL",
-    "https://webhook.site/9cb84781-69f8-41e8-b829-09a4029734c2"
-)
+        "WEBHOOK_URL"
+    )
+
     WEBHOOK_SECRET = os.getenv(
-
         "WEBHOOK_SECRET",
-
         "job-tracker-secret"
-
     )
 
     # -----------------------------
@@ -85,9 +82,23 @@ class Config:
     # -----------------------------
 
     SLACK_WEBHOOK_URL = os.getenv(
-
-        "SLACK_WEBHOOK_URL",
-
-        ""
-
+        "SLACK_WEBHOOK_URL"
     )
+
+    # -----------------------------
+    # Celery Configuration
+    # -----------------------------
+
+    CELERY_BROKER_URL = os.getenv(
+        "CELERY_BROKER_URL",
+        "redis://localhost:6379/0"
+    )
+
+    CELERY_RESULT_BACKEND = os.getenv(
+        "CELERY_RESULT_BACKEND",
+        "redis://localhost:6379/0"
+    )
+
+    UPLOAD_FOLDER = "uploads"
+
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024
