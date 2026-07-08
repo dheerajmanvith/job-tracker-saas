@@ -1,6 +1,8 @@
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required
 
+from extensions import limiter
+
 from services.analytics_service import AnalyticsService
 from services.audit_service import AuditService
 
@@ -14,6 +16,7 @@ analytics_bp = Blueprint(
     "/analytics",
     methods=["GET"]
 )
+@limiter.limit("30 per minute")
 def get_analytics():
 
     return jsonify({
@@ -39,6 +42,7 @@ def get_analytics():
     methods=["GET"]
 )
 @jwt_required()
+@limiter.limit("20 per minute")
 def get_audit_logs():
 
     logs = AuditService.get_logs()

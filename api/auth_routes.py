@@ -11,7 +11,10 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 
-from extensions import db
+from extensions import (
+    db,
+    limiter
+)
 
 from models.user import User
 
@@ -26,57 +29,33 @@ auth_bp = Blueprint(
     "/register",
     methods=["POST"]
 )
+@limiter.limit("10 per minute")
 def register():
 
     data = request.get_json()
 
-    username = data.get(
-        "username"
-    )
+    username = data.get("username")
+    email = data.get("email")
+    password = data.get("password")
 
-    email = data.get(
-        "email"
-    )
-
-    password = data.get(
-        "password"
-    )
-
-    if (
-        not username
-        or
-        not email
-        or
-        not password
-    ):
+    if not username or not email or not password:
 
         return jsonify(
             {
-                "error":
-                "username, email and password are required"
+                "error": "username, email and password are required"
             }
         ), 400
 
     existing = User.query.filter(
-        (
-            User.username
-            ==
-            username
-        )
-        |
-        (
-            User.email
-            ==
-            email
-        )
+        (User.username == username) |
+        (User.email == email)
     ).first()
 
     if existing:
 
         return jsonify(
             {
-                "error":
-                "User already exists"
+                "error": "User already exists"
             }
         ), 400
 
@@ -85,20 +64,14 @@ def register():
         email=email
     )
 
-    user.set_password(
-        password
-    )
+    user.set_password(password)
 
-    db.session.add(
-        user
-    )
-
+    db.session.add(user)
     db.session.commit()
 
     return jsonify(
         {
-            "message":
-            "User registered successfully"
+            "message": "User registered successfully"
         }
     ), 201
 
@@ -107,55 +80,38 @@ def register():
     "/login",
     methods=["POST"]
 )
+@limiter.limit("5 per minute")
 def login():
 
     data = request.get_json()
 
-    email = data.get(
-        "email"
-    )
-
-    password = data.get(
-        "password"
-    )
+    email = data.get("email")
+    password = data.get("password")
 
     user = User.query.filter_by(
         email=email
     ).first()
 
-    if (
-        not user
-        or
-        not user.check_password(
-            password
-        )
-    ):
+    if not user or not user.check_password(password):
 
         return jsonify(
             {
-                "error":
-                "Invalid credentials"
+                "error": "Invalid credentials"
             }
         ), 401
 
-    access_token = (
-        create_access_token(
-            identity=str(user.id)
-        )
+    access_token = create_access_token(
+        identity=str(user.id)
     )
 
-    refresh_token = (
-        create_refresh_token(
-            identity=str(user.id)
-        )
+    refresh_token = create_refresh_token(
+        identity=str(user.id)
     )
 
     return jsonify(
         {
-            "access_token":
-            access_token,
-            "refresh_token":
-            refresh_token
+            "access_token": access_token,
+            "refresh_token": refresh_token
         }
     )
 
@@ -165,22 +121,18 @@ def login():
     methods=["POST"]
 )
 @jwt_required(refresh=True)
+@limiter.limit("10 per minute")
 def refresh():
 
-    current_user = (
-        get_jwt_identity()
-    )
+    current_user = get_jwt_identity()
 
-    access_token = (
-        create_access_token(
-            identity=current_user
-        )
+    access_token = create_access_token(
+        identity=current_user
     )
 
     return jsonify(
         {
-            "access_token":
-            access_token
+            "access_token": access_token
         }
     )
 
@@ -190,11 +142,10 @@ def refresh():
     methods=["GET"]
 )
 @jwt_required()
+@limiter.limit("30 per minute")
 def profile():
 
-    current_user_id = (
-        get_jwt_identity()
-    )
+    current_user_id = get_jwt_identity()
 
     user = User.query.get(
         int(current_user_id)
@@ -204,19 +155,15 @@ def profile():
 
         return jsonify(
             {
-                "error":
-                "User not found"
+                "error": "User not found"
             }
         ), 404
 
     return jsonify(
         {
-            "id":
-            user.id,
-            "username":
-            user.username,
-            "email":
-            user.email
+            "id": user.id,
+            "username": user.username,
+            "email": user.email
         }
     )
 
@@ -226,11 +173,11 @@ def profile():
     methods=["POST"]
 )
 @jwt_required()
+@limiter.limit("20 per minute")
 def logout():
 
     return jsonify(
         {
-            "message":
-            "Logout successful"
+            "message": "Logout successful"
         }
-    )
+    ), 200

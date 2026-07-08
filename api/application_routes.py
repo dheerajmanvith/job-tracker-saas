@@ -9,6 +9,8 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 
+from extensions import limiter
+
 from services.application_service import (
     ApplicationService
 )
@@ -32,6 +34,7 @@ application_bp = Blueprint(
     methods=["POST"]
 )
 @jwt_required()
+@limiter.limit("30 per minute")
 def create_application():
 
     current_user = int(
@@ -86,6 +89,7 @@ def create_application():
     methods=["GET"]
 )
 @jwt_required()
+@limiter.limit("100 per minute")
 def list_applications():
 
     current_user = int(
@@ -120,6 +124,7 @@ def list_applications():
     methods=["GET"]
 )
 @jwt_required()
+@limiter.limit("100 per minute")
 def get_application(
     application_id
 ):
@@ -151,6 +156,7 @@ def get_application(
     methods=["PUT"]
 )
 @jwt_required()
+@limiter.limit("30 per minute")
 def update_application(
     application_id
 ):
@@ -193,6 +199,7 @@ def update_application(
     methods=["DELETE"]
 )
 @jwt_required()
+@limiter.limit("20 per minute")
 def delete_application(
     application_id
 ):

@@ -4,17 +4,17 @@ from flask_jwt_extended import JWTManager
 from flask_caching import Cache
 from flask_mail import Mail
 
-# Database
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 db = SQLAlchemy()
-
-# Database migrations
 migrate = Migrate()
-
-# JWT Authentication
 jwt = JWTManager()
 
-# Redis Cache
 cache = Cache()
-
-# Flask-Mail
 mail = Mail()
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["100 per minute"]
+)

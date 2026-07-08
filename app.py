@@ -1,11 +1,14 @@
 from flask import (
     Flask,
-    send_from_directory
-)
+    send_from_directory,
+    jsonify)
 
 from flask_swagger_ui import (
     get_swaggerui_blueprint
 )
+
+from flask_talisman import Talisman
+from flask_cors import CORS
 
 from config import Config
 
@@ -14,8 +17,10 @@ from extensions import (
     migrate,
     jwt,
     cache,
-    mail
+    mail,
+    limiter
 )
+
 
 from scheduler import start_scheduler
 
@@ -25,6 +30,16 @@ app = Flask(__name__)
 # Load Configuration
 # -------------------------------------------------
 app.config.from_object(Config)
+
+# -------------------------------------------------
+# Security
+# -------------------------------------------------
+
+Talisman(
+    app,
+    force_https=False,
+    content_security_policy=None
+)
 
 # -------------------------------------------------
 # Initialize Extensions
@@ -41,6 +56,8 @@ jwt.init_app(app)
 cache.init_app(app)
 
 mail.init_app(app)
+
+limiter.init_app(app)
 
 # -------------------------------------------------
 # Import Models
@@ -69,7 +86,6 @@ def check_if_token_revoked(
     ).first()
 
     return token is not None
-
 
 # -------------------------------------------------
 # Register Error Handlers
@@ -144,7 +160,6 @@ app.register_blueprint(
     url_prefix=SWAGGER_URL
 )
 
-
 @app.route("/swagger/swagger.json")
 def swagger_json():
 
@@ -153,18 +168,15 @@ def swagger_json():
         "swagger.json"
     )
 
-
 @app.route("/")
 def home():
 
     return "Job Tracker SaaS Running!"
 
-
 # -------------------------------------------------
 # Start APScheduler
 # -------------------------------------------------
 start_scheduler(app)
-
 
 # -------------------------------------------------
 # Run Application
