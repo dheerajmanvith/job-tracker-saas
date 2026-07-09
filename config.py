@@ -28,9 +28,9 @@ class Config:
 # -----------------------------
 
     CACHE_TYPE = "RedisCache"
-    CACHE_REDIS_HOST = "localhost"
-    CACHE_REDIS_PORT = 6379
-    CACHE_REDIS_DB = 0
+    CACHE_REDIS_HOST = os.getenv("REDIS_HOST", "redis")
+    CACHE_REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+    CACHE_REDIS_DB = int(os.getenv("REDIS_DB", 0))
     CACHE_DEFAULT_TIMEOUT = 300
 
     MAIL_SERVER = os.getenv(
@@ -99,12 +99,12 @@ class Config:
 
     CELERY_BROKER_URL = os.getenv(
         "CELERY_BROKER_URL",
-        "redis://localhost:6379/0"
+        "redis://redis:6379/0"
     )
 
     CELERY_RESULT_BACKEND = os.getenv(
         "CELERY_RESULT_BACKEND",
-        "redis://localhost:6379/0"
+        "redis://redis:6379/0"
     )
 
     UPLOAD_FOLDER = "uploads"

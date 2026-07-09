@@ -15,8 +15,12 @@ cache = Cache()
 
 mail = Mail()
 
+import os
+
 limiter = Limiter(
     key_func=get_remote_address,
-    default_limits=["100 per minute"],
-    storage_uri="redis://localhost:6379/0"
+    storage_uri=os.getenv(
+        "RATELIMIT_STORAGE_URI",
+        "redis://redis:6379/0",
+    ),
 )
