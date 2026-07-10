@@ -1,4 +1,13 @@
-﻿venv/
+﻿# Python
 __pycache__/
-*.pyc
+*.py[cod]
+venv/
 .env
+
+# Node
+node_modules/
+job-tracker-frontend/node_modules/
+dist/
+
+# Frontend
+job-tracker-frontend/dist/
