@@ -17,7 +17,7 @@ from flask_talisman import (
 
 import os
 
-from config import Config
+from config import Config, TestingConfig
 
 from extensions import (
     db,
@@ -33,7 +33,8 @@ app = Flask(__name__)
 # -----------------------------
 # Upload Folder
 # -----------------------------
-app.config.from_object(Config)
+config_class = TestingConfig if os.getenv("FLASK_ENV") == "testing" else Config
+app.config.from_object(config_class)
 
 os.makedirs(
     app.config["UPLOAD_FOLDER"],
@@ -342,3 +343,4 @@ if __name__ == "__main__":
     debug=False,
     use_reloader=False
 )
+

@@ -110,3 +110,21 @@ class Config:
     UPLOAD_FOLDER = "uploads"
 
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+
+class TestingConfig(Config):
+    TESTING = True
+
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "TEST_DATABASE_URL",
+        "postgresql://postgres:postgres@localhost:5432/job_tracker_test"
+    )
+
+    JWT_SECRET_KEY = "test-jwt-secret"
+
+    CACHE_TYPE = "NullCache"
+
+    RATELIMIT_ENABLED = False
+
+    WTF_CSRF_ENABLED = False
+
+    MAIL_SUPPRESS_SEND = True

@@ -5,6 +5,11 @@ from flask import (
     jsonify
 )
 
+from flask_jwt_extended import (
+    jwt_required,
+    get_jwt_identity
+)
+
 from extensions import (
     limiter
 )
@@ -39,7 +44,10 @@ application_bp = Blueprint(
 @limiter.limit(
     "100 per minute"
 )
+@jwt_required()
 def list_applications():
+
+    user_id = int(get_jwt_identity())
 
     page = int(
         request.args.get(
@@ -60,19 +68,23 @@ def list_applications():
         "full"
     )
 
-    applications = (
+    all_applications = (
         ApplicationService.list_applications(
-            page,
-            per_page
+            user_id
         )
     )
+
+    total = len(all_applications)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paged_applications = all_applications[start:end]
 
     if format_type.lower() == "summary":
 
         return jsonify(
             {
                 "total":
-                applications.total,
+                total,
 
                 "applications":
                 [
@@ -84,10 +96,10 @@ def list_applications():
                         app.company,
 
                         "status":
-                        app.status.value
+                        app.status
                     }
 
-                    for app in applications.items
+                    for app in paged_applications
                 ]
             }
         )
@@ -95,13 +107,13 @@ def list_applications():
     return jsonify(
         {
             "total":
-            applications.total,
+            total,
 
             "page":
-            applications.page,
+            page,
 
             "pages":
-            applications.pages,
+            (total + per_page - 1) // per_page if per_page else 1,
 
             "applications":
             [
@@ -116,13 +128,13 @@ def list_applications():
                     app.role,
 
                     "status":
-                    app.status.value,
+                    app.status,
 
                     "notes":
-                    app.notes
+                    getattr(app, "notes", None)
                 }
 
-                for app in applications.items
+                for app in paged_applications
             ]
         }
     )
@@ -139,14 +151,18 @@ def list_applications():
 @limiter.limit(
     "100 per minute"
 )
+@jwt_required()
 def get_application(
         application_id):
+
+    user_id = int(get_jwt_identity())
 
     try:
 
         app = (
             ApplicationService.get_application(
-                application_id
+                application_id,
+                user_id=user_id
             )
         )
 
@@ -162,10 +178,10 @@ def get_application(
                 app.role,
 
                 "status":
-                app.status.value,
+                app.status,
 
                 "notes":
-                app.notes,
+                getattr(app, "notes", None),
 
                 "resume_path":
                 app.resume_path
@@ -193,7 +209,10 @@ def get_application(
 @limiter.limit(
     "30 per minute"
 )
+@jwt_required()
 def create_application():
+
+    user_id = int(get_jwt_identity())
 
     data = request.get_json()
 
@@ -201,9 +220,10 @@ def create_application():
 
         app = (
             ApplicationService.create_application(
-                company=data["company"],
-                role=data["role"],
-                status=Status.APPLIED,
+                data["company"],
+                data["role"],
+                Status.APPLIED,
+                user_id,
                 notes=data.get(
                     "notes"
                 )
@@ -241,17 +261,32 @@ def create_application():
 @limiter.limit(
     "60 per minute"
 )
+@jwt_required()
 def update_application(
         application_id):
 
+    user_id = int(get_jwt_identity())
+
     data = request.get_json()
 
-    app = (
-        ApplicationService.update_application(
-            application_id,
-            **data
+    try:
+
+        app = (
+            ApplicationService.update_application(
+                application_id,
+                user_id=user_id,
+                **data
+            )
         )
-    )
+
+    except ApplicationNotFound as e:
+
+        return jsonify(
+            {
+                "error":
+                str(e)
+            }
+        ), 404
 
     return jsonify(
         {
@@ -275,12 +310,27 @@ def update_application(
 @limiter.limit(
     "20 per minute"
 )
+@jwt_required()
 def delete_application(
         application_id):
 
-    ApplicationService.delete_application(
-        application_id
-    )
+    user_id = int(get_jwt_identity())
+
+    try:
+
+        ApplicationService.delete_application(
+            application_id,
+            user_id=user_id
+        )
+
+    except ApplicationNotFound as e:
+
+        return jsonify(
+            {
+                "error":
+                str(e)
+            }
+        ), 404
 
     return jsonify(
         {
@@ -301,8 +351,11 @@ def delete_application(
 @limiter.limit(
     "30 per minute"
 )
+@jwt_required()
 def application_stats():
 
+    user_id = int(get_jwt_identity())
+
     return jsonify(
-        ApplicationService.get_stats()
+        ApplicationService.get_stats(user_id=user_id)
     )

@@ -20,6 +20,7 @@ analytics_bp = Blueprint(
     methods=["GET"]
 )
 @limiter.limit("30 per minute")
+@jwt_required()
 @cache.cached(timeout=300)
 def get_analytics():
 

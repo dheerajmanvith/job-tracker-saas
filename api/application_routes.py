@@ -1,7 +1,13 @@
+API_VERSION = "2.0.0"
 from flask import (
     Blueprint,
     request,
     jsonify
+)
+
+from flask_jwt_extended import (
+    jwt_required,
+    get_jwt_identity
 )
 
 from extensions import (
@@ -22,19 +28,26 @@ from services.exceptions import (
 )
 
 application_bp = Blueprint(
-    "applications",
-    __name__
+    "applications_v2",
+    __name__,
+    url_prefix="/api/v2"
 )
 
+# -----------------------------
+# List Applications
+# -----------------------------
 
 @application_bp.route(
-    "/api/applications",
+    "/applications",
     methods=["GET"]
 )
 @limiter.limit(
     "100 per minute"
 )
+@jwt_required()
 def list_applications():
+
+    user_id = int(get_jwt_identity())
 
     page = int(
         request.args.get(
@@ -50,12 +63,43 @@ def list_applications():
         )
     )
 
+    format_type = request.args.get(
+        "format",
+        "full"
+    )
+
     applications = (
         ApplicationService.list_applications(
             page,
-            per_page
+            per_page,
+            user_id=user_id
         )
     )
+
+    if format_type.lower() == "summary":
+
+        return jsonify(
+            {
+                "total":
+                applications.total,
+
+                "applications":
+                [
+                    {
+                        "id":
+                        app.id,
+
+                        "company":
+                        app.company,
+
+                        "status":
+                        app.status.value
+                    }
+
+                    for app in applications.items
+                ]
+            }
+        )
 
     return jsonify(
         {
@@ -93,21 +137,29 @@ def list_applications():
     )
 
 
+# -----------------------------
+# Get Application
+# -----------------------------
+
 @application_bp.route(
-    "/api/applications/<int:application_id>",
+    "/applications/<int:application_id>",
     methods=["GET"]
 )
 @limiter.limit(
     "100 per minute"
 )
+@jwt_required()
 def get_application(
         application_id):
+
+    user_id = int(get_jwt_identity())
 
     try:
 
         app = (
             ApplicationService.get_application(
-                application_id
+                application_id,
+                user_id=user_id
             )
         )
 
@@ -143,14 +195,21 @@ def get_application(
         ), 404
 
 
+# -----------------------------
+# Create Application
+# -----------------------------
+
 @application_bp.route(
-    "/api/applications",
+    "/applications",
     methods=["POST"]
 )
 @limiter.limit(
     "30 per minute"
 )
+@jwt_required()
 def create_application():
+
+    user_id = int(get_jwt_identity())
 
     data = request.get_json()
 
@@ -158,9 +217,10 @@ def create_application():
 
         app = (
             ApplicationService.create_application(
-                company=data["company"],
-                role=data["role"],
-                status=Status.APPLIED,
+                data["company"],
+                data["role"],
+                Status.APPLIED,
+                user_id,
                 notes=data.get(
                     "notes"
                 )
@@ -187,24 +247,43 @@ def create_application():
         ), 400
 
 
+# -----------------------------
+# Update Application
+# -----------------------------
+
 @application_bp.route(
-    "/api/applications/<int:application_id>",
+    "/applications/<int:application_id>",
     methods=["PATCH"]
 )
 @limiter.limit(
     "60 per minute"
 )
+@jwt_required()
 def update_application(
         application_id):
 
+    user_id = int(get_jwt_identity())
+
     data = request.get_json()
 
-    app = (
-        ApplicationService.update_application(
-            application_id,
-            **data
+    try:
+
+        app = (
+            ApplicationService.update_application(
+                application_id,
+                user_id=user_id,
+                **data
+            )
         )
-    )
+
+    except ApplicationNotFound as e:
+
+        return jsonify(
+            {
+                "error":
+                str(e)
+            }
+        ), 404
 
     return jsonify(
         {
@@ -217,19 +296,38 @@ def update_application(
     )
 
 
+# -----------------------------
+# Delete Application
+# -----------------------------
+
 @application_bp.route(
-    "/api/applications/<int:application_id>",
+    "/applications/<int:application_id>",
     methods=["DELETE"]
 )
 @limiter.limit(
     "20 per minute"
 )
+@jwt_required()
 def delete_application(
         application_id):
 
-    ApplicationService.delete_application(
-        application_id
-    )
+    user_id = int(get_jwt_identity())
+
+    try:
+
+        ApplicationService.delete_application(
+            application_id,
+            user_id=user_id
+        )
+
+    except ApplicationNotFound as e:
+
+        return jsonify(
+            {
+                "error":
+                str(e)
+            }
+        ), 404
 
     return jsonify(
         {
@@ -239,15 +337,22 @@ def delete_application(
     )
 
 
+# -----------------------------
+# Application Statistics
+# -----------------------------
+
 @application_bp.route(
-    "/api/applications/stats",
+    "/applications/stats",
     methods=["GET"]
 )
 @limiter.limit(
     "30 per minute"
 )
+@jwt_required()
 def application_stats():
 
+    user_id = int(get_jwt_identity())
+
     return jsonify(
-        ApplicationService.get_stats()
+        ApplicationService.get_stats(user_id=user_id)
     )

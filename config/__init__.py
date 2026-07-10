@@ -110,3 +110,24 @@ class Config:
     UPLOAD_FOLDER = "uploads"
 
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+
+class TestingConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "TEST_DATABASE_URL",
+        Config.SQLALCHEMY_DATABASE_URI
+    )
+    CACHE_TYPE = "NullCache"
+    RATELIMIT_ENABLED = False
+    WTF_CSRF_ENABLED = False
+
+
+class TestingConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "TEST_DATABASE_URL",
+        Config.SQLALCHEMY_DATABASE_URI
+    )
+    CACHE_TYPE = "NullCache"
+    RATELIMIT_ENABLED = False
+    WTF_CSRF_ENABLED = False
