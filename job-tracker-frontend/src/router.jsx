@@ -1,39 +1,44 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter } from "react-router-dom";
 
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Applications from './pages/Applications';
-import Analytics from './pages/Analytics';
-import Jobs from './pages/Jobs';
-import NotFound from './pages/NotFound';
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Applications from "./pages/Applications";
+import Analytics from "./pages/Analytics";
+import Jobs from "./pages/Jobs";
+import ComponentDemo from "./pages/ComponentDemo";
+import NotFound from "./pages/NotFound";
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <Login />,
   },
   {
-    path: '/login',
+    path: "/login",
     element: <Login />,
   },
   {
-    path: '/dashboard',
+    path: "/dashboard",
     element: <Dashboard />,
   },
   {
-    path: '/applications',
+    path: "/applications",
     element: <Applications />,
   },
   {
-    path: '/analytics',
+    path: "/analytics",
     element: <Analytics />,
   },
   {
-    path: '/jobs',
+    path: "/jobs",
     element: <Jobs />,
   },
   {
-    path: '*',
+    path: "/demo",
+    element: <ComponentDemo />,
+  },
+  {
+    path: "*",
     element: <NotFound />,
   },
 ]);
