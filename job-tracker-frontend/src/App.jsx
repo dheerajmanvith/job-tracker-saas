@@ -2,8 +2,11 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
 
+import MainLayout from "./layouts/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
+
 import { useAuth } from "./context/AuthContext";
 
 function App() {
@@ -11,7 +14,7 @@ function App() {
 
   return (
     <Routes>
-      {/* Default Route */}
+      {/* Root */}
       <Route
         path="/"
         element={
@@ -35,18 +38,25 @@ function App() {
         }
       />
 
-      {/* Dashboard */}
+      {/* Protected Routes */}
       <Route
-        path="/dashboard"
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <MainLayout />
           </ProtectedRoute>
         }
-      />
+      >
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
+        />
+      </Route>
 
       {/* 404 */}
-      <Route path="*" element={<h2>404 - Page Not Found</h2>} />
+      <Route
+        path="*"
+        element={<NotFound />}
+      />
     </Routes>
   );
 }

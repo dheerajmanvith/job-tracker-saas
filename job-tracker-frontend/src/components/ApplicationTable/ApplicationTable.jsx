@@ -1,6 +1,9 @@
 import "./ApplicationTable.css";
+import useApplicationStore from "../../store/applicationStore";
 
 function ApplicationTable({ applications = [] }) {
+  const updateStatus = useApplicationStore((state) => state.updateStatus);
+
   if (!Array.isArray(applications)) {
     return <h3>Invalid application data.</h3>;
   }
@@ -15,6 +18,7 @@ function ApplicationTable({ applications = [] }) {
         <tr>
           <th>Company</th>
           <th>Role</th>
+          <th>Status</th>
           <th>Notes</th>
         </tr>
       </thead>
@@ -23,8 +27,25 @@ function ApplicationTable({ applications = [] }) {
         {applications.map((app) => (
           <tr key={app.id}>
             <td>{app.company}</td>
+
             <td>{app.role}</td>
-            <td>{app.notes}</td>
+
+            <td>
+              <select
+                value={app.status || "APPLIED"}
+                onChange={(e) =>
+                  updateStatus(app.id, e.target.value)
+                }
+              >
+                <option value="APPLIED">Applied</option>
+                <option value="PHONE_SCREEN">Phone Screen</option>
+                <option value="INTERVIEW">Interview</option>
+                <option value="OFFER">Offer</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
+            </td>
+
+            <td>{app.notes || "-"}</td>
           </tr>
         ))}
       </tbody>
