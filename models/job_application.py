@@ -40,7 +40,7 @@ class JobApplication(db.Model):
         db.String(255)
     )
 
-    created_at = db.Column(
+    applied_date = db.Column(
         db.DateTime,
         nullable=False,
         default=datetime.utcnow,
@@ -54,5 +54,15 @@ class JobApplication(db.Model):
         index=True
     )
 
+    user = db.relationship(
+        "User",
+        back_populates="applications"
+    )
+    
+    notes = db.Column(
+    db.Text,
+    nullable=True
+    )
+    
     def __repr__(self):
         return f"<JobApplication {self.company} - {self.role}>"

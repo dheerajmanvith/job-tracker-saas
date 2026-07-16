@@ -8,7 +8,8 @@ from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     jwt_required,
-    get_jwt_identity
+    get_jwt_identity,
+    get_jwt
 )
 
 from extensions import (
@@ -17,6 +18,7 @@ from extensions import (
 )
 
 from models.user import User
+from models.token_blocklist import TokenBlocklist
 
 
 auth_bp = Blueprint(
@@ -175,6 +177,14 @@ def profile():
 @jwt_required()
 @limiter.limit("20 per minute")
 def logout():
+
+    jti = get_jwt()["jti"]
+
+    db.session.add(
+        TokenBlocklist(jti=jti)
+    )
+
+    db.session.commit()
 
     return jsonify(
         {

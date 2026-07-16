@@ -8,14 +8,16 @@ import Jobs from "./pages/Jobs";
 import ComponentDemo from "./pages/ComponentDemo";
 import NotFound from "./pages/NotFound";
 
+import AddApplicationForm from "./forms/AddApplicationForm";
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Login />,
   },
   {
-    path: "/login",
-    element: <Login />,
+    path: "/add",
+    element: <AddApplicationForm />,
   },
   {
     path: "/dashboard",

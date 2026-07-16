@@ -1,13 +1,16 @@
-import Button from "./components/Button";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Login from "./pages/Login";
+import AddApplicationForm from "./forms/AddApplicationForm";
 
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center gap-4 bg-gray-100">
-      <Button>Primary</Button>
-      <Button variant="secondary">Secondary</Button>
-      <Button variant="success">Success</Button>
-      <Button variant="danger">Danger</Button>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/dashboard" element={<AddApplicationForm />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

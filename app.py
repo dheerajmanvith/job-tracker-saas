@@ -55,21 +55,23 @@ Talisman(
     force_https=False
 )
 
+# -----------------------------
+# CORS
+# -----------------------------
+# NOTE: previously only "/api/*" was covered, which silently blocked
+# browser requests to the auth routes (/login, /register, /refresh,
+# /profile, /logout) since they don't sit under /api/. This is why
+# login worked in Postman (no CORS enforcement) but failed in the browser.
 CORS(
-
     app,
-
     resources={
-
-        r"/api/*": {
-
+        r"/*": {
             "origins": "*"
-
         }
-
     }
-
 )
+# For production, replace "*" with your actual frontend origin, e.g.:
+# resources={r"/*": {"origins": "https://yourapp.com"}}
 
 # -----------------------------
 # Initialize Extensions
@@ -340,7 +342,6 @@ if __name__ == "__main__":
     app.run(
     host="0.0.0.0",
     port=5000,
-    debug=False,
+    debug=True,
     use_reloader=False
 )
-
