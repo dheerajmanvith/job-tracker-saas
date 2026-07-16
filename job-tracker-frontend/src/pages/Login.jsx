@@ -1,101 +1,98 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const [form, setForm] = useState({
+  const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const handleChange = (e) => {
-    setForm({
-      ...form,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
+
+    setError("");
   };
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setLoading(true);
+
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:5000/login",
-        {
-          email: form.email,
-          password: form.password,
-        }
+      await login(formData.email, formData.password);
+      navigate("/");
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Invalid email or password."
       );
-
-      console.log("Login Response:", response.data);
-
-      localStorage.setItem(
-        "access_token",
-        response.data.access_token
-      );
-
-      localStorage.setItem(
-        "refresh_token",
-        response.data.refresh_token
-      );
-
-      console.log(
-        "Stored Token:",
-        localStorage.getItem("access_token")
-      );
-
-      alert("Login Successful!");
-
-      navigate("/add");
-    } catch (error) {
-      console.error(error);
-
-      if (error.response) {
-        alert(error.response.data.error || "Login Failed");
-      } else {
-        alert("Cannot connect to server.");
-      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="form-container">
-      <h2>Login</h2>
-
-      <form onSubmit={handleLogin}>
-        <div className="input-group">
-          <label>Email</label>
-
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="input-group">
-          <label>Password</label>
-
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <button
-          className="submit-btn"
-          type="submit"
-        >
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
+      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
+        <h1 className="mb-6 text-center text-3xl font-bold">
           Login
-        </button>
-      </form>
+        </h1>
+
+        {error && (
+          <div className="mb-4 rounded bg-red-100 p-3 text-red-700">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="mb-2 block font-medium">
+              Email
+            </label>
+
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full rounded-lg border p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block font-medium">
+              Password
+            </label>
+
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="w-full rounded-lg border p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <button
+            disabled={loading}
+            className="w-full rounded-lg bg-blue-600 py-3 text-white transition hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
