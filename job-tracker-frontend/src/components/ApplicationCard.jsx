@@ -1,81 +1,134 @@
-import PropTypes from "prop-types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Building2,
+  CalendarDays,
+  MapPin
+} from "lucide-react";
 
-import Button from "./Button";
-import Card from "./Card";
-import StatusBadge from "./StatusBadge";
 
 function ApplicationCard({
-  company,
-  position,
-  location,
-  status,
-  appliedDate,
-  onEdit,
-  onDelete,
+  application
 }) {
-  return (
-    <Card className="transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
-      <div className="flex flex-col gap-5">
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">
-              {position}
-            </h2>
 
-            <p className="mt-1 text-lg font-medium text-gray-700">
-              {company}
-            </p>
 
-            <p className="mt-2 text-sm text-gray-500">
-              📍 {location}
-            </p>
+const statusVariant = {
 
-            {appliedDate && (
-              <p className="mt-1 text-sm text-gray-500">
-                Applied: {appliedDate}
-              </p>
-            )}
-          </div>
+  APPLIED:"secondary",
 
-          <StatusBadge status={status} />
-        </div>
+  PHONE_SCREEN:"default",
 
-        {/* Actions */}
-        <div className="flex gap-3">
-          <Button
-            variant="primary"
-            onClick={onEdit}
-          >
-            Edit
-          </Button>
+  INTERVIEW:"default",
 
-          <Button
-            variant="danger"
-            onClick={onDelete}
-          >
-            Delete
-          </Button>
-        </div>
-      </div>
-    </Card>
-  );
+  OFFER:"default",
+
+  REJECTED:"destructive"
+
+};
+
+
+return (
+
+<Card
+className="
+hover:shadow-lg
+transition
+duration-300
+"
+>
+
+
+<CardHeader>
+
+
+<div className="
+flex
+justify-between
+items-start
+gap-3
+">
+
+
+<CardTitle className="text-lg">
+
+{application.company}
+
+</CardTitle>
+
+
+<Badge
+variant={
+statusVariant[application.status]
+}
+>
+
+{application.status}
+
+</Badge>
+
+
+</div>
+
+
+</CardHeader>
+
+
+
+<CardContent
+className="
+space-y-3
+"
+>
+
+
+<div className="flex items-center gap-2 text-sm">
+
+<Building2 size={16}/>
+
+<span>
+{application.position}
+</span>
+
+</div>
+
+
+
+<div className="flex items-center gap-2 text-sm">
+
+<MapPin size={16}/>
+
+<span>
+{application.location || "Remote"}
+</span>
+
+</div>
+
+
+
+<div className="flex items-center gap-2 text-sm">
+
+<CalendarDays size={16}/>
+
+<span>
+
+{
+new Date(application.applied_date)
+.toLocaleDateString()
 }
 
-ApplicationCard.propTypes = {
-  company: PropTypes.string.isRequired,
-  position: PropTypes.string.isRequired,
-  location: PropTypes.string.isRequired,
-  status: PropTypes.string.isRequired,
-  appliedDate: PropTypes.string,
-  onEdit: PropTypes.func,
-  onDelete: PropTypes.func,
-};
+</span>
 
-ApplicationCard.defaultProps = {
-  appliedDate: "",
-  onEdit: () => {},
-  onDelete: () => {},
-};
+</div>
+
+
+</CardContent>
+
+
+</Card>
+
+)
+
+}
+
 
 export default ApplicationCard;
