@@ -27,14 +27,19 @@ function Login() {
     e.preventDefault();
 
     setLoading(true);
+    setError("");
 
     try {
       await login(formData.email, formData.password);
-      navigate("/");
+
+      // Redirect to Dashboard after successful login
+      navigate("/dashboard");
     } catch (err) {
+      console.error("Login Error:", err);
+
       setError(
-        err.response?.data?.message ||
-          "Invalid email or password."
+        err.response?.data?.error ||
+        "Invalid email or password."
       );
     } finally {
       setLoading(false);
@@ -86,8 +91,9 @@ function Login() {
           </div>
 
           <button
+            type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-blue-600 py-3 text-white transition hover:bg-blue-700 disabled:opacity-50"
+            className="w-full rounded-lg bg-blue-600 py-3 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
