@@ -58,11 +58,11 @@ class JobApplication(db.Model):
         "User",
         back_populates="applications"
     )
-    
+
     notes = db.Column(
-    db.Text,
-    nullable=True
+        db.Text,
+        nullable=True
     )
-    
+
     def __repr__(self):
         return f"<JobApplication {self.company} - {self.role}>"

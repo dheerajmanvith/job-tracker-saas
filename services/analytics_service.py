@@ -1,6 +1,5 @@
 from collections import Counter
 from datetime import datetime
-
 from models.job_application import JobApplication
 
 
@@ -12,7 +11,6 @@ class AnalyticsService:
 
     @staticmethod
     def get_status_counts(applications):
-
         status_counts = {}
 
         for application in applications:
@@ -22,8 +20,28 @@ class AnalyticsService:
         return status_counts
 
     @staticmethod
-    def get_response_rate(applications):
+    def get_applications_per_week(applications):
+        weekly_counts = {}
 
+        for application in applications:
+            if not application.applied_date:
+                continue
+
+            year, week, _ = application.applied_date.isocalendar()
+            key = f"{year}-W{week}"
+
+            weekly_counts[key] = weekly_counts.get(key, 0) + 1
+
+        return [
+            {
+                "week": week,
+                "count": count,
+            }
+            for week, count in sorted(weekly_counts.items())
+        ]
+
+    @staticmethod
+    def get_response_rate(applications):
         status_counts = AnalyticsService.get_status_counts(applications)
 
         total = sum(status_counts.values())
@@ -40,11 +58,10 @@ class AnalyticsService:
 
     @staticmethod
     def get_best_day_to_apply(applications):
-
         days = [
-            application.created_at.strftime("%A")
+            application.applied_date.strftime("%A")
             for application in applications
-            if application.created_at
+            if application.applied_date
         ]
 
         if not days:
@@ -54,17 +71,16 @@ class AnalyticsService:
 
     @staticmethod
     def get_average_days_per_status(applications):
-
         status_days = {}
 
         now = datetime.utcnow()
 
         for application in applications:
 
-            if not application.created_at:
+            if not application.applied_date:
                 continue
 
-            days = (now - application.created_at).days
+            days = (now - application.applied_date).days
 
             status_days.setdefault(
                 application.status,

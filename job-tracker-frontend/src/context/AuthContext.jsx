@@ -5,9 +5,11 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setIsAuthenticated(authService.isAuthenticated());
+    setLoading(false);
   }, []);
 
   const login = async (email, password) => {
@@ -24,6 +26,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         isAuthenticated,
+        loading,
         login,
         logout,
       }}

@@ -49,11 +49,11 @@ app.config[
     "RATELIMIT_HEADERS_ENABLED"
 ] = True
 
-Talisman(
-    app,
-    content_security_policy=None,
-    force_https=False
-)
+#Talisman(
+#   app,
+#   content_security_policy=None,
+#   force_https=False
+#)
 
 # -----------------------------
 # CORS

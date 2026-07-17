@@ -1,60 +1,134 @@
-import Card from "../components/Card";
+import DashboardLayout from "../components/layout/DashboardLayout";
+import ApplicationCard from "../components/ApplicationCard";
+import useApplications from "../hooks/useApplications";
 
+function Dashboard() {
+  const {
+    applications,
+    loading,
+    error,
+  } = useApplications();
 
-function Dashboard(){
+  const stats = {
+    total: applications.length,
+    applied: applications.filter(
+      (app) => app.status === "APPLIED"
+    ).length,
+    interviews: applications.filter(
+      (app) => app.status === "INTERVIEW"
+    ).length,
+    offers: applications.filter(
+      (app) => app.status === "OFFER"
+    ).length,
+    rejected: applications.filter(
+      (app) => app.status === "REJECTED"
+    ).length,
+  };
 
-return (
+  return (
+    <DashboardLayout>
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold">
+            Dashboard
+          </h1>
 
-<div className="space-y-6">
+          <p className="text-muted-foreground">
+            Welcome to your Job Tracker dashboard.
+          </p>
+        </div>
 
+        {/* Stats */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <div className="rounded-lg border bg-card p-6 shadow-sm">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Total
+            </h3>
 
-<h1 className="text-3xl font-bold">
-Dashboard
-</h1>
+            <p className="mt-2 text-3xl font-bold">
+              {stats.total}
+            </p>
+          </div>
 
+          <div className="rounded-lg border bg-card p-6 shadow-sm">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Applied
+            </h3>
 
-<div className="
-grid
-gap-4
-md:grid-cols-3
-">
+            <p className="mt-2 text-3xl font-bold">
+              {stats.applied}
+            </p>
+          </div>
 
+          <div className="rounded-lg border bg-card p-6 shadow-sm">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Interviews
+            </h3>
 
-<Card title="Applications">
+            <p className="mt-2 text-3xl font-bold">
+              {stats.interviews}
+            </p>
+          </div>
 
-<p className="text-4xl font-bold">
-24
-</p>
+          <div className="rounded-lg border bg-card p-6 shadow-sm">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Offers
+            </h3>
 
-</Card>
+            <p className="mt-2 text-3xl font-bold">
+              {stats.offers}
+            </p>
+          </div>
 
+          <div className="rounded-lg border bg-card p-6 shadow-sm">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Rejected
+            </h3>
 
-<Card title="Interviews">
+            <p className="mt-2 text-3xl font-bold">
+              {stats.rejected}
+            </p>
+          </div>
+        </div>
 
-<p className="text-4xl font-bold">
-8
-</p>
+        {/* Recent Applications */}
+        <div>
+          <h2 className="mb-4 text-2xl font-semibold">
+            Recent Applications
+          </h2>
 
-</Card>
+          {loading && (
+            <p>Loading applications...</p>
+          )}
 
+          {error && (
+            <p className="text-red-500">
+              {error}
+            </p>
+          )}
 
-<Card title="Offers">
+          {!loading && !error && applications.length === 0 && (
+            <p>No applications found.</p>
+          )}
 
-<p className="text-4xl font-bold">
-3
-</p>
-
-</Card>
-
-
-</div>
-
-
-</div>
-
-)
-
+          {!loading &&
+            !error &&
+            applications.length > 0 && (
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {applications
+                  .slice(0, 6)
+                  .map((application) => (
+                    <ApplicationCard
+                      key={application.id}
+                      application={application}
+                    />
+                  ))}
+              </div>
+            )}
+        </div>
+      </div>
+    </DashboardLayout>
+  );
 }
-
 
 export default Dashboard;
