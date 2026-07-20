@@ -1,12 +1,10 @@
 import os
-
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
 class Config:
-
     SECRET_KEY = os.getenv(
         "SECRET_KEY",
         "super-secret-key"
@@ -23,16 +21,46 @@ class Config:
         "jwt-secret-key"
     )
 
-# -----------------------------
-# Cache Configuration (Redis)
-# -----------------------------
+    # -----------------------------
+    # Adzuna API Configuration
+    # -----------------------------
+    ADZUNA_APP_ID = os.getenv(
+        "ADZUNA_APP_ID"
+    )
 
+    ADZUNA_APP_KEY = os.getenv(
+        "ADZUNA_APP_KEY"
+    )
+
+    # -----------------------------
+    # Cache Configuration (Redis)
+    # -----------------------------
     CACHE_TYPE = "RedisCache"
-    CACHE_REDIS_HOST = "localhost"
-    CACHE_REDIS_PORT = 6379
-    CACHE_REDIS_DB = 0
+
+    CACHE_REDIS_HOST = os.getenv(
+        "REDIS_HOST",
+        "localhost"
+    )
+
+    CACHE_REDIS_PORT = int(
+        os.getenv(
+            "REDIS_PORT",
+            6380
+        )
+    )
+
+    CACHE_REDIS_DB = int(
+        os.getenv(
+            "REDIS_DB",
+            0
+        )
+    )
+
     CACHE_DEFAULT_TIMEOUT = 300
 
+    # -----------------------------
+    # Mail Configuration
+    # -----------------------------
     MAIL_SERVER = os.getenv(
         "MAIL_SERVER"
     )
@@ -56,16 +84,14 @@ class Config:
         os.getenv(
             "MAIL_USE_TLS",
             "True"
-        )
-        == "True"
+        ) == "True"
     )
 
     MAIL_USE_SSL = (
         os.getenv(
             "MAIL_USE_SSL",
             "False"
-        )
-        == "True"
+        ) == "True"
     )
 
     MAIL_DEFAULT_SENDER = os.getenv(
@@ -75,7 +101,6 @@ class Config:
     # -----------------------------
     # Webhook Configuration
     # -----------------------------
-
     WEBHOOK_URL = os.getenv(
         "WEBHOOK_URL"
     )
@@ -88,7 +113,6 @@ class Config:
     # -----------------------------
     # Slack Configuration
     # -----------------------------
-
     SLACK_WEBHOOK_URL = os.getenv(
         "SLACK_WEBHOOK_URL"
     )
@@ -96,38 +120,34 @@ class Config:
     # -----------------------------
     # Celery Configuration
     # -----------------------------
-
     CELERY_BROKER_URL = os.getenv(
         "CELERY_BROKER_URL",
-        "redis://localhost:6379/0"
+        "redis://localhost:6380/0"
     )
 
     CELERY_RESULT_BACKEND = os.getenv(
         "CELERY_RESULT_BACKEND",
-        "redis://localhost:6379/0"
+        "redis://localhost:6380/0"
     )
 
+    # -----------------------------
+    # Uploads
+    # -----------------------------
     UPLOAD_FOLDER = "uploads"
 
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 
+
 class TestingConfig(Config):
     TESTING = True
+
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "TEST_DATABASE_URL",
         Config.SQLALCHEMY_DATABASE_URI
     )
-    CACHE_TYPE = "NullCache"
-    RATELIMIT_ENABLED = False
-    WTF_CSRF_ENABLED = False
 
-
-class TestingConfig(Config):
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        "TEST_DATABASE_URL",
-        Config.SQLALCHEMY_DATABASE_URI
-    )
     CACHE_TYPE = "NullCache"
+
     RATELIMIT_ENABLED = False
+
     WTF_CSRF_ENABLED = False

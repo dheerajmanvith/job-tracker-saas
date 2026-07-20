@@ -337,6 +337,24 @@ def routes():
 # -----------------------------
 # Main
 # -----------------------------
+@app.route("/redis-debug")
+def redis_debug():
+    return {
+        "CACHE_TYPE": app.config["CACHE_TYPE"],
+        "CACHE_REDIS_HOST": app.config["CACHE_REDIS_HOST"],
+        "CACHE_REDIS_PORT": app.config["CACHE_REDIS_PORT"],
+        "REDIS_HOST_ENV": os.getenv("REDIS_HOST"),
+        "REDIS_PORT_ENV": os.getenv("REDIS_PORT"),
+    }
+
+@app.route("/config-debug")
+def config_debug():
+    return {
+        "HAS_ADZUNA_APP_ID": "ADZUNA_APP_ID" in app.config,
+        "ADZUNA_APP_ID": app.config.get("ADZUNA_APP_ID"),
+        "ADZUNA_APP_KEY": app.config.get("ADZUNA_APP_KEY"),
+        "CACHE_REDIS_PORT": app.config.get("CACHE_REDIS_PORT"),
+    }
 
 if __name__ == "__main__":
 
