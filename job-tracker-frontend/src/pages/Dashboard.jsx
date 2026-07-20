@@ -1,142 +1,73 @@
-import DashboardLayout from "../components/layout/DashboardLayout";
-import ApplicationCard from "../components/ApplicationCard";
-import ResumeUpload from "../components/FileUpload/ResumeUpload";
-import useApplications from "../hooks/useApplications";
+import { useState } from "react";
+import JobSearchBar from "../components/JobSearch/JobSearchBar";
+import JobList from "../components/JobSearch/JobList";
+import { searchJobs } from "../services/jobSearchService";
 
-function Dashboard() {
-  const {
-    applications,
-    loading,
-    error,
-  } = useApplications();
+export default function Dashboard() {
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const stats = {
-    total: applications.length,
-    applied: applications.filter(
-      (app) => app.status === "APPLIED"
-    ).length,
-    interviews: applications.filter(
-      (app) => app.status === "INTERVIEW"
-    ).length,
-    offers: applications.filter(
-      (app) => app.status === "OFFER"
-    ).length,
-    rejected: applications.filter(
-      (app) => app.status === "REJECTED"
-    ).length,
+  const handleSearch = async (query, location) => {
+    try {
+      setLoading(true);
+      setError("");
+
+      console.log("Searching:", query, location);
+
+      const data = await searchJobs(query, location);
+
+      console.log("Response:", data);
+
+      setJobs(data);
+    } catch (err) {
+      console.error(err);
+
+      if (err.response) {
+        setError(err.response.data.error || "Failed to fetch jobs.");
+      } else {
+        setError("Unable to connect to the server.");
+      }
+
+      setJobs([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <DashboardLayout>
-      <div className="space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold">
-            Dashboard
-          </h1>
+    <div
+      style={{
+        maxWidth: "900px",
+        margin: "30px auto",
+        padding: "20px",
+      }}
+    >
+      <h1>Job Search</h1>
 
-          <p className="text-muted-foreground">
-            Welcome to your Job Tracker dashboard.
-          </p>
-        </div>
+      <JobSearchBar onSearch={handleSearch} />
 
-        {/* Stats */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-          <div className="rounded-lg border bg-card p-6 shadow-sm">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Total
-            </h3>
-            <p className="mt-2 text-3xl font-bold">
-              {stats.total}
-            </p>
-          </div>
+      {loading && (
+        <p>Loading jobs...</p>
+      )}
 
-          <div className="rounded-lg border bg-card p-6 shadow-sm">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Applied
-            </h3>
-            <p className="mt-2 text-3xl font-bold">
-              {stats.applied}
-            </p>
-          </div>
+      {error && (
+        <p style={{ color: "red" }}>
+          {error}
+        </p>
+      )}
 
-          <div className="rounded-lg border bg-card p-6 shadow-sm">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Interviews
-            </h3>
-            <p className="mt-2 text-3xl font-bold">
-              {stats.interviews}
-            </p>
-          </div>
+      {!loading && jobs.length > 0 && (
+        <h3>
+          {jobs.length} Jobs Found
+        </h3>
+      )}
 
-          <div className="rounded-lg border bg-card p-6 shadow-sm">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Offers
-            </h3>
-            <p className="mt-2 text-3xl font-bold">
-              {stats.offers}
-            </p>
-          </div>
+      {!loading && jobs.length === 0 && !error && (
+        <p>Search for jobs above.</p>
+      )}
 
-          <div className="rounded-lg border bg-card p-6 shadow-sm">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Rejected
-            </h3>
-            <p className="mt-2 text-3xl font-bold">
-              {stats.rejected}
-            </p>
-          </div>
-        </div>
-
-        {/* Resume Upload */}
-        <div>
-          <h2 className="mb-4 text-2xl font-semibold">
-            Resume
-          </h2>
-
-          <ResumeUpload />
-        </div>
-
-        {/* Recent Applications */}
-        <div>
-          <h2 className="mb-4 text-2xl font-semibold">
-            Recent Applications
-          </h2>
-
-          {loading && (
-            <p>Loading applications...</p>
-          )}
-
-          {error && (
-            <p className="text-red-500">
-              {error}
-            </p>
-          )}
-
-          {!loading &&
-            !error &&
-            applications.length === 0 && (
-              <p>No applications found.</p>
-            )}
-
-          {!loading &&
-            !error &&
-            applications.length > 0 && (
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {applications
-                  .slice(0, 6)
-                  .map((application) => (
-                    <ApplicationCard
-                      key={application.id}
-                      application={application}
-                    />
-                  ))}
-              </div>
-            )}
-        </div>
-      </div>
-    </DashboardLayout>
+      <JobList jobs={jobs} />
+    </div>
   );
 }
-
-export default Dashboard;
