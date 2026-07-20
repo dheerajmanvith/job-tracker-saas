@@ -1,3 +1,4 @@
+from models.resume import Resume
 from flask import (
     Flask,
     send_from_directory
@@ -13,6 +14,10 @@ from flask_cors import (
 
 from flask_talisman import (
     Talisman
+)
+
+from api.resume_routes import (
+    resume_bp
 )
 
 import os
@@ -180,6 +185,10 @@ app.register_blueprint(
 
 app.register_blueprint(
     application_bp_v2
+)
+
+app.register_blueprint(
+    resume_bp
 )
 
 app.register_blueprint(

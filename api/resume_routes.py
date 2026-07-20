@@ -1,9 +1,10 @@
-from flask import Blueprint
-from flask import request
-from flask import jsonify
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import (
+    jwt_required,
+    get_jwt_identity
+)
 
-from services.file_service import FileService
-from tasks.resume_tasks import parse_resume
+from services.resume_service import ResumeService
 
 resume_bp = Blueprint(
     "resume",
@@ -15,26 +16,72 @@ resume_bp = Blueprint(
     "/resume/upload",
     methods=["POST"]
 )
+@jwt_required()
 def upload_resume():
-
-    if "resume" not in request.files:
+    if "file" not in request.files:
         return jsonify({
-            "message": "Resume file is required"
+            "message": "No file uploaded."
         }), 400
 
-    file = request.files["resume"]
+    file = request.files["file"]
 
-    if file.filename == "":
+    try:
+        resume = ResumeService.upload_resume(
+            file=file,
+            user_id=get_jwt_identity()
+        )
+
         return jsonify({
-            "message": "No file selected"
+            "message": "Resume uploaded successfully.",
+            "resume": resume.to_dict()
+        }), 201
+
+    except ValueError as e:
+        return jsonify({
+            "message": str(e)
         }), 400
 
-    filepath = FileService.save_resume(file)
+    except Exception as e:
+        return jsonify({
+            "message": str(e)
+        }), 500
 
-    task = parse_resume.delay(filepath)
+
+@resume_bp.route(
+    "/resume",
+    methods=["GET"]
+)
+@jwt_required()
+def get_resume():
+    resume = ResumeService.get_resume(
+        get_jwt_identity()
+    )
+
+    if not resume:
+        return jsonify({
+            "message": "Resume not found."
+        }), 404
+
+    return jsonify(
+        resume.to_dict()
+    ), 200
+
+
+@resume_bp.route(
+    "/resume",
+    methods=["DELETE"]
+)
+@jwt_required()
+def delete_resume():
+    deleted = ResumeService.delete_resume(
+        get_jwt_identity()
+    )
+
+    if not deleted:
+        return jsonify({
+            "message": "Resume not found."
+        }), 404
 
     return jsonify({
-        "message": "Resume uploaded successfully",
-        "task_id": task.id,
-        "file_path": filepath
-    }), 202
+        "message": "Resume deleted successfully."
+    }), 200

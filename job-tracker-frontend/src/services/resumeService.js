@@ -3,7 +3,9 @@ import api from "./api";
 // Upload Resume
 export const uploadResume = async (file, onUploadProgress) => {
   const formData = new FormData();
-  formData.append("resume", file);
+
+  // Match the backend: request.files["file"]
+  formData.append("file", file);
 
   const response = await api.post("/resume/upload", formData, {
     headers: {
