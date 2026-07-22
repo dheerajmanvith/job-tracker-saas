@@ -211,7 +211,9 @@ from api.admin_routes import (
     admin_bp
 )
 
-
+from api.profile_routes import (
+    profile_bp
+)
 # Day 32 Notification System
 
 from api.notification_routes import (
@@ -268,7 +270,9 @@ app.register_blueprint(
     admin_bp
 )
 
-
+app.register_blueprint(
+    profile_bp
+)
 # Notification API
 
 app.register_blueprint(
