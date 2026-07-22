@@ -1,4 +1,5 @@
 from models.resume import Resume
+
 from flask import (
     Flask,
     send_from_directory
@@ -22,7 +23,10 @@ from api.resume_routes import (
 
 import os
 
-from config import Config, TestingConfig
+from config import (
+    Config,
+    TestingConfig
+)
 
 from extensions import (
     db,
@@ -33,40 +37,45 @@ from extensions import (
     limiter
 )
 
+
 app = Flask(__name__)
 
+
 # -----------------------------
-# Upload Folder
+# Configuration
 # -----------------------------
-config_class = TestingConfig if os.getenv("FLASK_ENV") == "testing" else Config
-app.config.from_object(config_class)
+
+config_class = (
+    TestingConfig
+    if os.getenv("FLASK_ENV") == "testing"
+    else Config
+)
+
+app.config.from_object(
+    config_class
+)
+
 
 os.makedirs(
     app.config["UPLOAD_FOLDER"],
     exist_ok=True
 )
 
+
 # -----------------------------
-# Flask Security
+# Rate Limiter
 # -----------------------------
 
 app.config[
     "RATELIMIT_HEADERS_ENABLED"
 ] = True
 
-#Talisman(
-#   app,
-#   content_security_policy=None,
-#   force_https=False
-#)
+
 
 # -----------------------------
 # CORS
 # -----------------------------
-# NOTE: previously only "/api/*" was covered, which silently blocked
-# browser requests to the auth routes (/login, /register, /refresh,
-# /profile, /logout) since they don't sit under /api/. This is why
-# login worked in Postman (no CORS enforcement) but failed in the browser.
+
 CORS(
     app,
     resources={
@@ -75,8 +84,8 @@ CORS(
         }
     }
 )
-# For production, replace "*" with your actual frontend origin, e.g.:
-# resources={r"/*": {"origins": "https://yourapp.com"}}
+
+
 
 # -----------------------------
 # Initialize Extensions
@@ -89,15 +98,27 @@ migrate.init_app(
     db
 )
 
-jwt.init_app(app)
+jwt.init_app(
+    app
+)
 
-cache.init_app(app)
+cache.init_app(
+    app
+)
 
-mail.init_app(app)
+mail.init_app(
+    app
+)
 
 limiter.init_app(
     app
 )
+
+
+
+# -----------------------------
+# Load Models
+# -----------------------------
 
 with app.app_context():
 
@@ -107,8 +128,10 @@ with app.app_context():
         TokenBlocklist
     )
 
+
+
 # -----------------------------
-# JWT Blocklist
+# JWT Token Blocklist
 # -----------------------------
 
 @jwt.token_in_blocklist_loader
@@ -119,25 +142,31 @@ def check_if_token_revoked(
     jti = jwt_payload["jti"]
 
     token = (
-        TokenBlocklist.query.filter_by(
+        TokenBlocklist.query
+        .filter_by(
             jti=jti
-        ).first()
+        )
+        .first()
     )
 
     return token is not None
 
 
+
 # -----------------------------
-# Global Error Handlers
+# Error Handlers
 # -----------------------------
 
 from services.error_handlers import (
     register_error_handlers
 )
 
+
 register_error_handlers(
     app
 )
+
+
 
 # -----------------------------
 # Blueprints
@@ -147,33 +176,49 @@ from api.v1.application_routes import (
     application_bp as application_bp_v1
 )
 
+
 from api.v2.application_routes import (
     application_bp as application_bp_v2
 )
+
 
 from api.auth_routes import (
     auth_bp
 )
 
+
 from api.jobs_routes import (
     jobs_bp
 )
+
 
 from api.email_routes import (
     email_bp
 )
 
+
 from api.csv_routes import (
     csv_bp
 )
+
 
 from api.analytics_routes import (
     analytics_bp
 )
 
+
 from api.admin_routes import (
     admin_bp
 )
+
+
+# Day 32 Notification System
+
+from api.notification_routes import (
+    notification_bp
+)
+
+
 
 # -----------------------------
 # Register Blueprints
@@ -183,45 +228,63 @@ app.register_blueprint(
     application_bp_v1
 )
 
+
 app.register_blueprint(
     application_bp_v2
 )
+
 
 app.register_blueprint(
     resume_bp
 )
 
+
 app.register_blueprint(
     auth_bp
 )
+
 
 app.register_blueprint(
     jobs_bp
 )
 
+
 app.register_blueprint(
     email_bp
 )
+
 
 app.register_blueprint(
     csv_bp
 )
 
+
 app.register_blueprint(
     analytics_bp
 )
+
 
 app.register_blueprint(
     admin_bp
 )
 
+
+# Notification API
+
+app.register_blueprint(
+    notification_bp
+)
+
+
+
 # -----------------------------
-# Swagger Configuration
+# Swagger
 # -----------------------------
 
 SWAGGER_URL = "/docs"
 
 API_URL = "/swagger/swagger.json"
+
 
 swaggerui_blueprint = (
     get_swaggerui_blueprint(
@@ -234,10 +297,12 @@ swaggerui_blueprint = (
     )
 )
 
+
 app.register_blueprint(
     swaggerui_blueprint,
     url_prefix=SWAGGER_URL
 )
+
 
 
 @app.route(
@@ -251,6 +316,7 @@ def swagger_json():
     )
 
 
+
 # -----------------------------
 # Home
 # -----------------------------
@@ -262,11 +328,16 @@ def home():
         "Job Tracker SaaS Running!"
     )
 
+
+
 @app.route("/health")
 def health():
+
     return {
         "status": "healthy"
     }, 200
+
+
 
 # -----------------------------
 # Debug Routes
@@ -298,34 +369,22 @@ def mail_debug():
     }
 
 
-@app.route("/mail-password")
-def mail_password():
-
-    return {
-
-        "password_length":
-        len(
-            app.config["MAIL_PASSWORD"]
-        ),
-
-        "starts_with":
-        app.config["MAIL_PASSWORD"][:4]
-
-    }
-
 
 @app.route("/routes")
 def routes():
 
     return {
 
-        "routes": sorted(
+        "routes":
+
+        sorted(
 
             [
-
                 str(rule)
 
-                for rule in app.url_map.iter_rules()
+                for rule
+
+                in app.url_map.iter_rules()
 
             ]
 
@@ -334,27 +393,61 @@ def routes():
     }
 
 
-# -----------------------------
-# Main
-# -----------------------------
+
 @app.route("/redis-debug")
 def redis_debug():
+
     return {
-        "CACHE_TYPE": app.config["CACHE_TYPE"],
-        "CACHE_REDIS_HOST": app.config["CACHE_REDIS_HOST"],
-        "CACHE_REDIS_PORT": app.config["CACHE_REDIS_PORT"],
-        "REDIS_HOST_ENV": os.getenv("REDIS_HOST"),
-        "REDIS_PORT_ENV": os.getenv("REDIS_PORT"),
+
+        "CACHE_TYPE":
+        app.config["CACHE_TYPE"],
+
+        "CACHE_REDIS_HOST":
+        app.config["CACHE_REDIS_HOST"],
+
+        "CACHE_REDIS_PORT":
+        app.config["CACHE_REDIS_PORT"],
+
+        "REDIS_HOST_ENV":
+        os.getenv("REDIS_HOST"),
+
+        "REDIS_PORT_ENV":
+        os.getenv("REDIS_PORT")
+
     }
+
+
 
 @app.route("/config-debug")
 def config_debug():
+
     return {
-        "HAS_ADZUNA_APP_ID": "ADZUNA_APP_ID" in app.config,
-        "ADZUNA_APP_ID": app.config.get("ADZUNA_APP_ID"),
-        "ADZUNA_APP_KEY": app.config.get("ADZUNA_APP_KEY"),
-        "CACHE_REDIS_PORT": app.config.get("CACHE_REDIS_PORT"),
+
+        "HAS_ADZUNA_APP_ID":
+        "ADZUNA_APP_ID" in app.config,
+
+        "ADZUNA_APP_ID":
+        app.config.get(
+            "ADZUNA_APP_ID"
+        ),
+
+        "ADZUNA_APP_KEY":
+        app.config.get(
+            "ADZUNA_APP_KEY"
+        ),
+
+        "CACHE_REDIS_PORT":
+        app.config.get(
+            "CACHE_REDIS_PORT"
+        )
+
     }
+
+
+
+# -----------------------------
+# Run Application
+# -----------------------------
 
 if __name__ == "__main__":
 
@@ -362,13 +455,15 @@ if __name__ == "__main__":
         start_scheduler
     )
 
+
     start_scheduler(
         app
     )
 
+
     app.run(
-    host="0.0.0.0",
-    port=5000,
-    debug=True,
-    use_reloader=False
-)
+        host="0.0.0.0",
+        port=5000,
+        debug=True,
+        use_reloader=False
+    )

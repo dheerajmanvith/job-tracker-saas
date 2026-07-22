@@ -4,13 +4,8 @@ from flask import (
     request
 )
 
-from services.jobs_service import (
-    JobsService
-)
-
-from tasks.sample_tasks import (
-    long_running_task
-)
+from services.jobs_service import JobsService
+from tasks.sample_tasks import long_running_task
 
 jobs_bp = Blueprint(
     "jobs",
@@ -27,23 +22,35 @@ jobs_bp = Blueprint(
 )
 def search_jobs():
 
-    keyword = request.args.get("q")
+    keyword = request.args.get("query", "").strip()
 
-    location = request.args.get("location")
+    location = request.args.get("location", "").strip()
 
     if not keyword:
         return jsonify(
             {
-                "error": "q parameter required"
+                "error": "query parameter required"
             }
         ), 400
 
-    jobs = JobsService.search_jobs(
-        keyword,
-        location
-    )
+    try:
+        jobs = JobsService.search_jobs(
+            keyword,
+            location
+        )
 
-    return jsonify(jobs), 200
+        return jsonify(
+            {
+                "jobs": jobs
+            }
+        ), 200
+
+    except Exception as e:
+        return jsonify(
+            {
+                "error": str(e)
+            }
+        ), 500
 
 
 # -----------------------------------------

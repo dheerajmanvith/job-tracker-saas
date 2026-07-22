@@ -1,5 +1,6 @@
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import NotificationBell from "../NotificationBell";
 
 
 function DashboardLayout({ children }) {
@@ -13,12 +14,27 @@ function DashboardLayout({ children }) {
       <Sidebar />
 
 
+
       {/* Main Content Area */}
       <div className="md:ml-64">
 
 
         {/* Top Navbar */}
-        <Navbar />
+        <div className="flex items-center justify-between">
+
+          <Navbar />
+
+
+          {/* Notification Bell */}
+          <div className="mr-6">
+
+            <NotificationBell />
+
+          </div>
+
+
+        </div>
+
 
 
         {/* Page Content */}
@@ -39,4 +55,4 @@ function DashboardLayout({ children }) {
 }
 
 
-export default DashboardLayout;
+export default DashboardLayout;next

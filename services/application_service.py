@@ -6,8 +6,13 @@ from services.exceptions import (
     ApplicationNotFound
 )
 
+from services.notification_service import (
+    NotificationService
+)
+
 
 class ApplicationService:
+
 
     # -----------------------------------------
     # CREATE APPLICATION
@@ -34,14 +39,32 @@ class ApplicationService:
 
         )
 
+
         if hasattr(application, "notes"):
             application.notes = notes
+
 
         db.session.add(application)
 
         db.session.commit()
 
+
+        # 🔔 Create Notification
+
+        NotificationService.create_notification(
+
+            user_id=user_id,
+
+            title="Application Created",
+
+            message=f"Your application for {company} - {role} was added"
+
+        )
+
+
         return application
+
+
 
     # -----------------------------------------
     # LIST APPLICATIONS
@@ -59,6 +82,8 @@ class ApplicationService:
             JobApplication.id.desc()
 
         ).all()
+
+
 
     # -----------------------------------------
     # GET SINGLE APPLICATION
@@ -78,6 +103,7 @@ class ApplicationService:
 
         ).first()
 
+
         if application is None:
 
             raise ApplicationNotFound(
@@ -86,7 +112,10 @@ class ApplicationService:
 
             )
 
+
         return application
+
+
 
     # -----------------------------------------
     # UPDATE APPLICATION
@@ -99,6 +128,7 @@ class ApplicationService:
         **data
     ):
 
+
         application = JobApplication.query.filter_by(
 
             id=application_id,
@@ -107,6 +137,7 @@ class ApplicationService:
 
         ).first()
 
+
         if application is None:
 
             raise ApplicationNotFound(
@@ -114,6 +145,10 @@ class ApplicationService:
                 f"Application {application_id} not found"
 
             )
+
+
+        old_status = application.status
+
 
         allowed_fields = [
 
@@ -129,6 +164,7 @@ class ApplicationService:
 
         ]
 
+
         for field in allowed_fields:
 
             if field in data and hasattr(application, field):
@@ -143,9 +179,35 @@ class ApplicationService:
 
                 )
 
+
         db.session.commit()
 
+
+
+        # 🔔 Status Change Notification
+
+        if (
+            "status" in data
+            and old_status != application.status
+        ):
+
+            NotificationService.create_notification(
+
+                user_id=user_id,
+
+                title="Application Status Updated",
+
+                message=(
+                    f"{application.company} status changed "
+                    f"from {old_status} to {application.status}"
+                )
+
+            )
+
+
         return application
+
+
 
     # -----------------------------------------
     # DELETE APPLICATION
@@ -157,6 +219,7 @@ class ApplicationService:
         user_id
     ):
 
+
         application = JobApplication.query.filter_by(
 
             id=application_id,
@@ -164,6 +227,7 @@ class ApplicationService:
             user_id=user_id
 
         ).first()
+
 
         if application is None:
 
@@ -173,11 +237,15 @@ class ApplicationService:
 
             )
 
+
         db.session.delete(application)
 
         db.session.commit()
 
+
         return True
+
+
 
     # -----------------------------------------
     # APPLICATION STATS
@@ -186,9 +254,13 @@ class ApplicationService:
     @staticmethod
     def get_stats(user_id):
 
+
         applications = JobApplication.query.filter_by(
+
             user_id=user_id
+
         ).all()
+
 
         stats = {
 
@@ -204,14 +276,21 @@ class ApplicationService:
 
         }
 
+
         for app in applications:
+
 
             status = app.status
 
+
             if hasattr(status, "value"):
+
                 status = status.value
 
+
             if status in stats:
+
                 stats[status] += 1
+
 
         return stats
