@@ -1,59 +1,75 @@
 import { createBrowserRouter } from "react-router-dom";
-
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Applications from "./pages/Applications";
-import Analytics from "./pages/Analytics";
-import Jobs from "./pages/Jobs";
-import Settings from "./pages/Settings";
-import ComponentDemo from "./pages/ComponentDemo";
-import AddApplicationForm from "./forms/AddApplicationForm";
-
-import NotFound from "./pages/NotFound";
-import ServerError from "./pages/ServerError";
-import ErrorPage from "./pages/ErrorPage";
+import { lazy, Suspense } from "react";
 
 import ProtectedLayout from "./components/layout/ProtectedLayout";
+
+// Lazy-loaded pages
+const Login = lazy(() => import("./pages/Login"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Applications = lazy(() => import("./pages/Applications"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const Jobs = lazy(() => import("./pages/Jobs"));
+const Settings = lazy(() => import("./pages/Settings"));
+const ComponentDemo = lazy(() => import("./pages/ComponentDemo"));
+const AddApplicationForm = lazy(() => import("./forms/AddApplicationForm"));
+
+const NotFound = lazy(() => import("./pages/NotFound"));
+const ServerError = lazy(() => import("./pages/ServerError"));
+const ErrorPage = lazy(() => import("./pages/ErrorPage"));
+
+// Loading Component
+const Loader = () => (
+  <div className="flex justify-center items-center h-screen text-xl font-semibold">
+    Loading...
+  </div>
+);
+
+// Helper Function
+const withSuspense = (Component) => (
+  <Suspense fallback={<Loader />}>
+    <Component />
+  </Suspense>
+);
 
 const router = createBrowserRouter([
   // Public Route
   {
     path: "/",
-    element: <Login />,
+    element: withSuspense(Login),
   },
 
   // Protected Routes
   {
     element: <ProtectedLayout />,
-    errorElement: <ErrorPage />,
+    errorElement: withSuspense(ErrorPage),
     children: [
       {
         path: "/dashboard",
-        element: <Dashboard />,
+        element: withSuspense(Dashboard),
       },
       {
         path: "/applications",
-        element: <Applications />,
+        element: withSuspense(Applications),
       },
       {
         path: "/analytics",
-        element: <Analytics />,
+        element: withSuspense(Analytics),
       },
       {
         path: "/jobs",
-        element: <Jobs />,
+        element: withSuspense(Jobs),
       },
       {
         path: "/settings",
-        element: <Settings />,
+        element: withSuspense(Settings),
       },
       {
         path: "/add",
-        element: <AddApplicationForm />,
+        element: withSuspense(AddApplicationForm),
       },
       {
         path: "/demo",
-        element: <ComponentDemo />,
+        element: withSuspense(ComponentDemo),
       },
     ],
   },
@@ -61,13 +77,13 @@ const router = createBrowserRouter([
   // Server Error
   {
     path: "/500",
-    element: <ServerError />,
+    element: withSuspense(ServerError),
   },
 
-  // 404 Page
+  // 404
   {
     path: "*",
-    element: <NotFound />,
+    element: withSuspense(NotFound),
   },
 ]);
 

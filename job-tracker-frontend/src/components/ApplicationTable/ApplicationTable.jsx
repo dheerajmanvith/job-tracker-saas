@@ -1,8 +1,11 @@
+import React from "react";
 import "./ApplicationTable.css";
 import useApplicationStore from "../../store/applicationStore";
 
 function ApplicationTable({ applications = [] }) {
   const updateStatus = useApplicationStore((state) => state.updateStatus);
+
+  console.log("ApplicationTable rendered");
 
   if (!Array.isArray(applications)) {
     return <h3>Invalid application data.</h3>;
@@ -33,9 +36,7 @@ function ApplicationTable({ applications = [] }) {
             <td>
               <select
                 value={app.status || "APPLIED"}
-                onChange={(e) =>
-                  updateStatus(app.id, e.target.value)
-                }
+                onChange={(e) => updateStatus(app.id, e.target.value)}
               >
                 <option value="APPLIED">Applied</option>
                 <option value="PHONE_SCREEN">Phone Screen</option>
@@ -53,4 +54,4 @@ function ApplicationTable({ applications = [] }) {
   );
 }
 
-export default ApplicationTable;
+export default React.memo(ApplicationTable);
