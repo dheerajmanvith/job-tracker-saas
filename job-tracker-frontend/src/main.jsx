@@ -7,6 +7,11 @@ import "./index.css";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "./context/AuthContext";
+import ErrorBoundary from "./components/ErrorBoundary";
+import setupAxiosInterceptors from "./utils/axiosInterceptor";
+
+// Initialize Axios interceptors
+setupAxiosInterceptors();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -15,7 +20,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       storageKey="vite-ui-theme"
     >
       <AuthProvider>
-        <App />
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
+
         <Toaster />
       </AuthProvider>
     </ThemeProvider>

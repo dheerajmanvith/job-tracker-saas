@@ -5,90 +5,70 @@ import Dashboard from "./pages/Dashboard";
 import Applications from "./pages/Applications";
 import Analytics from "./pages/Analytics";
 import Jobs from "./pages/Jobs";
-import ComponentDemo from "./pages/ComponentDemo";
-import NotFound from "./pages/NotFound";
-import AddApplicationForm from "./forms/AddApplicationForm";
-import ProtectedRoute from "./routes/ProtectedRoute";
 import Settings from "./pages/Settings";
+import ComponentDemo from "./pages/ComponentDemo";
+import AddApplicationForm from "./forms/AddApplicationForm";
 
+import NotFound from "./pages/NotFound";
+import ServerError from "./pages/ServerError";
+import ErrorPage from "./pages/ErrorPage";
+
+import ProtectedLayout from "./components/layout/ProtectedLayout";
 
 const router = createBrowserRouter([
-
+  // Public Route
   {
     path: "/",
-    element: <Login />
+    element: <Login />,
   },
 
-
+  // Protected Routes
   {
-    path: "/add",
-    element:
-      <ProtectedRoute>
-        <AddApplicationForm />
-      </ProtectedRoute>
+    element: <ProtectedLayout />,
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: "/dashboard",
+        element: <Dashboard />,
+      },
+      {
+        path: "/applications",
+        element: <Applications />,
+      },
+      {
+        path: "/analytics",
+        element: <Analytics />,
+      },
+      {
+        path: "/jobs",
+        element: <Jobs />,
+      },
+      {
+        path: "/settings",
+        element: <Settings />,
+      },
+      {
+        path: "/add",
+        element: <AddApplicationForm />,
+      },
+      {
+        path: "/demo",
+        element: <ComponentDemo />,
+      },
+    ],
   },
 
-
+  // Server Error
   {
-    path: "/dashboard",
-    element:
-      <ProtectedRoute>
-        <Dashboard />
-      </ProtectedRoute>
+    path: "/500",
+    element: <ServerError />,
   },
 
-
-  {
-    path: "/applications",
-    element:
-      <ProtectedRoute>
-        <Applications />
-      </ProtectedRoute>
-  },
-
-
-  {
-    path: "/analytics",
-    element:
-      <ProtectedRoute>
-        <Analytics />
-      </ProtectedRoute>
-  },
-
-
-  {
-    path: "/jobs",
-    element:
-      <ProtectedRoute>
-        <Jobs />
-      </ProtectedRoute>
-  },
-
-
-  {
-    path: "/settings",
-    element:
-      <ProtectedRoute>
-        <Settings />
-      </ProtectedRoute>
-  },
-
-
-  {
-    path: "/demo",
-    element:
-      <ProtectedRoute>
-        <ComponentDemo />
-      </ProtectedRoute>
-  },
-
-
+  // 404 Page
   {
     path: "*",
-    element: <NotFound />
-  }
-
+    element: <NotFound />,
+  },
 ]);
-
 
 export default router;
