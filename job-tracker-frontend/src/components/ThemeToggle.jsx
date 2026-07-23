@@ -19,27 +19,58 @@ function ThemeToggle() {
   if (!mounted) return null;
 
 
+  const isDark = theme === "dark";
+
+
   return (
 
     <Button
+
+      type="button"
+
       variant="outline"
+
       size="icon"
+
       onClick={() =>
         setTheme(
-          theme === "dark"
+          isDark
             ? "light"
             : "dark"
         )
       }
+
+
+      aria-label={
+        isDark
+          ? "Switch to light mode"
+          : "Switch to dark mode"
+      }
+
+
+      title={
+        isDark
+          ? "Switch to light mode"
+          : "Switch to dark mode"
+      }
+
+
     >
 
       {
-        theme === "dark"
+        isDark
           ?
-          <Sun size={18} />
+          <Sun
+            size={18}
+            aria-hidden="true"
+          />
           :
-          <Moon size={18} />
+          <Moon
+            size={18}
+            aria-hidden="true"
+          />
       }
+
 
     </Button>
 

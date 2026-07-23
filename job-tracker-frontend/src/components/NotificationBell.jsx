@@ -29,16 +29,33 @@ function NotificationBell(){
             {/* Bell Button */}
 
             <button
+                type="button"
                 onClick={() => setOpen(!open)}
+
+                aria-label={
+                    unreadCount > 0
+                        ? `Notifications, ${unreadCount} unread`
+                        : "Notifications"
+                }
+
+                aria-expanded={open}
+
+                aria-haspopup="true"
+
                 className="
                     relative
                     p-2
                     rounded-full
                     hover:bg-gray-100
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-blue-500
                 "
             >
 
-                🔔
+                <span aria-hidden="true">
+                    🔔
+                </span>
 
 
                 {
@@ -56,6 +73,8 @@ function NotificationBell(){
                                 px-2
                                 py-1
                             "
+
+                            aria-label={`${unreadCount} unread notifications`}
                         >
                             {unreadCount}
                         </span>
@@ -74,6 +93,10 @@ function NotificationBell(){
                 open && (
 
                     <div
+                        role="menu"
+
+                        aria-label="Notifications menu"
+
                         className="
                             absolute
                             right-0
@@ -118,7 +141,9 @@ function NotificationBell(){
                                 notifications.map(
                                     (notification)=>(
 
-                                    <div
+                                    <button
+                                        type="button"
+
                                         key={
                                             notification.id
                                         }
@@ -129,11 +154,18 @@ function NotificationBell(){
                                             )
                                         }
 
+                                        role="menuitem"
+
                                         className="
+                                            w-full
+                                            text-left
                                             p-3
                                             border-b
                                             cursor-pointer
                                             hover:bg-gray-50
+                                            focus:outline-none
+                                            focus:ring-2
+                                            focus:ring-blue-500
                                         "
                                     >
 
@@ -160,7 +192,7 @@ function NotificationBell(){
                                         </p>
 
 
-                                    </div>
+                                    </button>
 
                                 ))
 

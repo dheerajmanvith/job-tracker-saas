@@ -1,6 +1,7 @@
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import NotificationBell from "../NotificationBell";
+import SkipToContent from "../SkipToContent";
 
 
 function DashboardLayout({ children }) {
@@ -9,23 +10,33 @@ function DashboardLayout({ children }) {
 
     <div className="min-h-screen bg-background">
 
-
-      {/* Sidebar */}
-      <Sidebar />
-
+      {/* Accessibility */}
+      <SkipToContent />
 
 
-      {/* Main Content Area */}
+      {/* Navigation */}
+      <aside aria-label="Main sidebar navigation">
+
+        <Sidebar />
+
+      </aside>
+
+
+
+      {/* Main Application Area */}
       <div className="md:ml-64">
 
 
-        {/* Top Navbar */}
-        <div className="flex items-center justify-between">
+        {/* Header */}
+        <header
+          className="flex items-center justify-between"
+          aria-label="Application header"
+        >
 
           <Navbar />
 
 
-          {/* Notification Bell */}
+          {/* Notification */}
           <div className="mr-6">
 
             <NotificationBell />
@@ -33,12 +44,16 @@ function DashboardLayout({ children }) {
           </div>
 
 
-        </div>
+        </header>
 
 
 
-        {/* Page Content */}
-        <main className="p-6">
+        {/* Main Content */}
+        <main
+          id="main-content"
+          className="p-6"
+          tabIndex="-1"
+        >
 
           {children}
 
@@ -55,4 +70,4 @@ function DashboardLayout({ children }) {
 }
 
 
-export default DashboardLayout;next
+export default DashboardLayout;
