@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+
 import API from "../services/api";
 import AnalyticsCards from "../components/analytics/AnalyticsCards";
 import ApplicationsBarChart from "../components/analytics/ApplicationsBarChart";
@@ -6,6 +8,8 @@ import StatusPieChart from "../components/analytics/StatusPieChart";
 import AnalyticsSkeleton from "../components/analytics/AnalyticsSkeleton";
 
 function Analytics() {
+  const { t } = useTranslation();
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,8 +25,10 @@ function Analytics() {
         if (isMounted) {
           setError(
             err.response?.status
-              ? `${err.response.status}: ${err.response.data?.msg || "Failed to load analytics"}`
-              : "Network error"
+              ? `${err.response.status}: ${
+                  err.response.data?.msg || t("analyticsLoadError")
+                }`
+              : t("networkError")
           );
         }
       })
@@ -33,24 +39,31 @@ function Analytics() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [t]);
 
-  if (loading) return <AnalyticsSkeleton />;
+  if (loading) {
+    return <AnalyticsSkeleton />;
+  }
 
   if (error) {
     return (
       <div style={{ padding: "20px", color: "white" }}>
-        <h1>Analytics</h1>
-        <p>Error: {error}</p>
+        <h1>{t("analytics")}</h1>
+        <p>
+          {t("error")}: {error}
+        </p>
       </div>
     );
   }
 
   return (
     <div style={{ padding: "20px", color: "white" }}>
-      <h1>Analytics</h1>
+      <h1>{t("analytics")}</h1>
+
       <AnalyticsCards data={data} />
+
       <ApplicationsBarChart data={data} />
+
       <StatusPieChart data={data} />
     </div>
   );

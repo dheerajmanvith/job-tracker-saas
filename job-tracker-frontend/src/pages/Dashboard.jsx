@@ -2,7 +2,10 @@ import useDebounce from "../hooks/useDebounce";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
 import NotificationBell from "../components/NotificationBell";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import StatCard from "../components/StatCard";
 import VirtualizedApplicationTable from "../components/VirtualizedApplicationTable";
 
@@ -10,6 +13,7 @@ const API = "http://127.0.0.1:5000/api/v2";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const token = localStorage.getItem("access_token");
 
@@ -62,11 +66,11 @@ export default function Dashboard() {
         navigate("/");
       }
 
-      setError("Failed to load dashboard.");
+      setError(t("dashboardLoadError"));
     } finally {
       setLoading(false);
     }
-  }, [token, navigate]);
+  }, [token, navigate, t]);
 
   const filteredApplications = useMemo(() => {
     const keyword = debouncedSearch.toLowerCase();
@@ -94,35 +98,41 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen text-xl font-semibold">
-        Loading Dashboard...
+        {t("loadingDashboard")}
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
+
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
+
         <h1 className="text-3xl font-bold">
-          Job Tracker Dashboard
+          {t("dashboard")}
         </h1>
 
         <div className="flex items-center gap-4">
+
+          <LanguageSwitcher />
+
           <NotificationBell />
 
           <button
             onClick={fetchDashboard}
             className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded"
           >
-            Refresh
+            {t("refresh")}
           </button>
 
           <button
             onClick={logout}
             className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
           >
-            Logout
+            {t("logout")}
           </button>
+
         </div>
       </div>
 
@@ -135,39 +145,67 @@ export default function Dashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-5 mb-8">
-        <StatCard title="Total" value={stats.total} color="blue" />
-        <StatCard title="Applied" value={stats.Applied} color="gray" />
-        <StatCard title="Interview" value={stats.Interview} color="yellow" />
-        <StatCard title="Offer" value={stats.Offer} color="green" />
-        <StatCard title="Rejected" value={stats.Rejected} color="red" />
+
+        <StatCard
+          title={t("totalApplications")}
+          value={stats.total}
+          color="blue"
+        />
+
+        <StatCard
+          title={t("applied")}
+          value={stats.Applied}
+          color="gray"
+        />
+
+        <StatCard
+          title={t("interviews")}
+          value={stats.Interview}
+          color="yellow"
+        />
+
+        <StatCard
+          title={t("offers")}
+          value={stats.Offer}
+          color="green"
+        />
+
+        <StatCard
+          title={t("rejections")}
+          value={stats.Rejected}
+          color="red"
+        />
+
       </div>
 
-      {/* Search Box */}
+      {/* Search */}
       <div className="mb-6">
         <input
           type="text"
-          placeholder="Search company or role..."
+          placeholder={t("searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full md:w-96 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {/* Recent Applications */}
+      {/* Applications */}
       <div className="bg-white rounded-xl shadow p-6">
+
         <h2 className="text-xl font-bold mb-4">
-          Recent Applications
+          {t("recentApplications")}
         </h2>
 
         {filteredApplications.length === 0 ? (
           <p className="text-gray-500">
-            No applications found.
+            {t("noApplications")}
           </p>
         ) : (
           <VirtualizedApplicationTable
             applications={filteredApplications}
           />
         )}
+
       </div>
     </div>
   );

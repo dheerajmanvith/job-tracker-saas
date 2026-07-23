@@ -1,0 +1,57 @@
+{
+  "dashboard": "Dashboard",
+  "applications": "Applications",
+  "analytics": "Analytics",
+  "jobs": "Jobs",
+
+  "login": "Login",
+  "email": "Email",
+  "password": "Password",
+  "enterEmail": "Enter your email",
+  "enterPassword": "Enter your password",
+  "loggingIn": "Logging in...",
+  "invalidCredentials": "Invalid email or password.",
+
+  "welcome": "Welcome",
+
+  "refresh": "Refresh",
+  "logout": "Logout",
+
+  "totalApplications": "Total Applications",
+  "applied": "Applied",
+  "interviews": "Interviews",
+  "offers": "Offers",
+  "rejections": "Rejections",
+
+  "pending": "Pending",
+
+  "search": "Search",
+  "searchPlaceholder": "Search company or role...",
+
+  "recentApplications": "Recent Applications",
+  "noApplications": "No applications found.",
+
+  "save": "Save",
+  "cancel": "Cancel",
+  "edit": "Edit",
+  "delete": "Delete",
+
+  "addApplication": "Add Application",
+
+  "company": "Company",
+  "position": "Role",
+  "status": "Status",
+
+  "dateApplied": "Date Applied",
+
+  "loadingDashboard": "Loading Dashboard...",
+  "dashboardLoadError": "Failed to load dashboard.",
+
+  "accountSettings": "Account Settings",
+  "loadingProfile": "Loading profile...",
+
+  "phone_screen": "Phone Screen",
+  "interview": "Interview",
+  "offer": "Offer",
+  "rejected": "Rejected"
+}

@@ -1,10 +1,14 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
+
 import JobSearchBar from "../components/JobSearch/JobSearchBar";
 import JobList from "../components/JobSearch/JobList";
 import LoadMoreButton from "../components/JobSearch/LoadMoreButton";
 import { searchJobs } from "../services/jobSearchService";
 
 function Jobs() {
+  const { t } = useTranslation();
+
   const [jobs, setJobs] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -67,14 +71,14 @@ function Jobs() {
   return (
     <div className="mx-auto max-w-6xl p-6">
       <h1 className="mb-6 text-3xl font-bold">
-        Job Search
+        {t("jobSearch")}
       </h1>
 
       <JobSearchBar onSearch={handleSearch} />
 
       {loading && (
         <p className="mb-4 text-gray-500">
-          Searching...
+          {t("searching")}
         </p>
       )}
 

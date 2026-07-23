@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -32,14 +34,13 @@ function Login() {
     try {
       await login(formData.email, formData.password);
 
-      // Redirect to Dashboard after successful login
       navigate("/dashboard");
     } catch (err) {
       console.error("Login Error:", err);
 
       setError(
         err.response?.data?.error ||
-        "Invalid email or password."
+          t("invalidCredentials")
       );
     } finally {
       setLoading(false);
@@ -49,8 +50,9 @@ function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
+
         <h1 className="mb-6 text-center text-3xl font-bold">
-          Login
+          {t("login")}
         </h1>
 
         {error && (
@@ -60,9 +62,10 @@ function Login() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
+
           <div>
             <label className="mb-2 block font-medium">
-              Email
+              {t("email")}
             </label>
 
             <input
@@ -70,6 +73,7 @@ function Login() {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              placeholder={t("enterEmail")}
               required
               className="w-full rounded-lg border p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -77,7 +81,7 @@ function Login() {
 
           <div>
             <label className="mb-2 block font-medium">
-              Password
+              {t("password")}
             </label>
 
             <input
@@ -85,6 +89,7 @@ function Login() {
               name="password"
               value={formData.password}
               onChange={handleChange}
+              placeholder={t("enterPassword")}
               required
               className="w-full rounded-lg border p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -95,8 +100,9 @@ function Login() {
             disabled={loading}
             className="w-full rounded-lg bg-blue-600 py-3 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? t("loggingIn") : t("login")}
           </button>
+
         </form>
       </div>
     </div>

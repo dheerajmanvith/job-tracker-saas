@@ -1,0 +1,57 @@
+{
+  "dashboard": "డాష్‌బోర్డ్",
+  "applications": "దరఖాస్తులు",
+  "analytics": "విశ్లేషణ",
+  "jobs": "ఉద్యోగాలు",
+
+  "login": "లాగిన్",
+  "email": "ఇమెయిల్",
+  "password": "పాస్‌వర్డ్",
+  "enterEmail": "మీ ఇమెయిల్ నమోదు చేయండి",
+  "enterPassword": "మీ పాస్‌వర్డ్ నమోదు చేయండి",
+  "loggingIn": "లాగిన్ అవుతోంది...",
+  "invalidCredentials": "చెల్లని ఇమెయిల్ లేదా పాస్‌వర్డ్.",
+
+  "welcome": "స్వాగతం",
+
+  "refresh": "రిఫ్రెష్",
+  "logout": "లాగ్ అవుట్",
+
+  "totalApplications": "మొత్తం దరఖాస్తులు",
+  "applied": "దరఖాస్తు చేయబడింది",
+  "interviews": "ఇంటర్వ్యూలు",
+  "offers": "ఉద్యోగ ఆఫర్లు",
+  "rejections": "తిరస్కరణలు",
+
+  "pending": "పెండింగ్",
+
+  "search": "వెతుకు",
+  "searchPlaceholder": "కంపెనీ లేదా పాత్ర కోసం వెతకండి...",
+
+  "recentApplications": "ఇటీవలి దరఖాస్తులు",
+  "noApplications": "దరఖాస్తులు కనుగొనబడలేదు.",
+
+  "save": "సేవ్",
+  "cancel": "రద్దు",
+  "edit": "సవరించు",
+  "delete": "తొలగించు",
+
+  "addApplication": "దరఖాస్తు జోడించు",
+
+  "company": "కంపెనీ",
+  "position": "పదవి",
+  "status": "స్థితి",
+
+  "dateApplied": "దరఖాస్తు చేసిన తేదీ",
+
+  "loadingDashboard": "డాష్‌బోర్డ్ లోడ్ అవుతోంది...",
+  "dashboardLoadError": "డాష్‌బోర్డ్‌ను లోడ్ చేయలేకపోయాం.",
+
+  "accountSettings": "ఖాతా సెట్టింగ్‌లు",
+  "loadingProfile": "ప్రొఫైల్ లోడ్ అవుతోంది...",
+
+  "phone_screen": "ఫోన్ స్క్రీనింగ్",
+  "interview": "ఇంటర్వ్యూ",
+  "offer": "ఉద్యోగ ఆఫర్",
+  "rejected": "తిరస్కరించబడింది"
+}
