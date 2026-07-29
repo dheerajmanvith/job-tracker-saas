@@ -1,39 +1,212 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import * as authService from "../services/authService";
+import {
+    createContext,
+    useContext,
+    useState
+} from "react";
+
+
+import API from "../services/api";
+
+
 
 const AuthContext = createContext();
 
+
+
+
 export function AuthProvider({ children }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    setIsAuthenticated(authService.isAuthenticated());
-    setLoading(false);
-  }, []);
 
-  const login = async (email, password) => {
-    await authService.login(email, password);
-    setIsAuthenticated(true);
-  };
 
-  const logout = () => {
-    authService.logout();
-    setIsAuthenticated(false);
-  };
+    const [isAuthenticated, setIsAuthenticated] =
+        useState(
+            () =>
+                Boolean(
+                    localStorage.getItem(
+                        "access_token"
+                    )
+                )
+        );
 
-  return (
-    <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        loading,
-        login,
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+
+
+
+
+    const login = async (
+        email,
+        password
+    ) => {
+
+
+        try {
+
+
+            const response =
+                await API.post(
+                    "/auth/login",
+                    {
+                        email,
+                        password
+                    }
+                );
+
+
+
+            const {
+                access_token,
+                refresh_token,
+                user
+            } = response.data;
+
+
+
+
+
+            // Store tokens
+
+            localStorage.setItem(
+                "access_token",
+                access_token
+            );
+
+
+            localStorage.setItem(
+                "refresh_token",
+                refresh_token
+            );
+
+
+
+
+
+            // Store user details
+            // needed for ADMIN protection
+
+            if(user){
+
+                localStorage.setItem(
+                    "user",
+                    JSON.stringify(user)
+                );
+
+            }
+
+
+
+
+
+            setIsAuthenticated(
+                true
+            );
+
+
+
+
+
+            return response.data;
+
+
+
+        }
+        catch(error){
+
+
+            console.error(
+                "Login failed:",
+                error
+            );
+
+
+            return null;
+
+
+        }
+
+
+    };
+
+
+
+
+
+
+
+
+    const logout = () => {
+
+
+
+        localStorage.removeItem(
+            "access_token"
+        );
+
+
+
+        localStorage.removeItem(
+            "refresh_token"
+        );
+
+
+
+        localStorage.removeItem(
+            "user"
+        );
+
+
+
+        setIsAuthenticated(
+            false
+        );
+
+
+    };
+
+
+
+
+
+
+
+
+
+    return (
+
+
+        <AuthContext.Provider
+
+            value={{
+                isAuthenticated,
+                login,
+                logout
+            }}
+
+        >
+
+            {children}
+
+
+        </AuthContext.Provider>
+
+
+    );
+
+
 }
 
-export const useAuth = () => useContext(AuthContext);
+
+
+
+
+
+
+
+
+export function useAuth(){
+
+
+    return useContext(
+        AuthContext
+    );
+
+
+}

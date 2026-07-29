@@ -1,51 +1,38 @@
-// api.js
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: "http://127.0.0.1:5000/api/v2",
+
+const API = axios.create({
+
+    baseURL:
+    "http://127.0.0.1:5000/api/v2"
+
 });
 
-// attach access token to every request
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 
-// handle expired access tokens
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true; // prevent infinite retry loops
+API.interceptors.request.use(
+    config => {
 
-      try {
-        const refreshToken = localStorage.getItem("refresh_token");
-        const res = await axios.post("http://127.0.0.1:5000/refresh", {
-          refresh_token: refreshToken,
-        });
 
-        const newAccessToken = res.data.access_token;
-        localStorage.setItem("access_token", newAccessToken);
+        const token =
+            localStorage.getItem(
+                "access_token"
+            );
 
-        // retry the original request with the new token
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        return api(originalRequest);
-      } catch (refreshError) {
-        // refresh token itself expired/invalid — force logout
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        window.location.href = "/login";
-        return Promise.reject(refreshError);
-      }
+
+        if(token){
+
+            config.headers.Authorization =
+            `Bearer ${token}`;
+
+        }
+
+
+        return config;
+
     }
-
-    return Promise.reject(error);
-  }
 );
 
-export default api;
+
+
+export default API;

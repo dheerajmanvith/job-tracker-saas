@@ -1,5 +1,7 @@
 from enum import Enum
 
+from sqlalchemy import text
+
 from extensions import db
 
 from werkzeug.security import (
@@ -13,13 +15,17 @@ class Role(Enum):
     ADMIN = "ADMIN"
 
 
+
 class User(db.Model):
+
     __tablename__ = "users"
+
 
     id = db.Column(
         db.Integer,
         primary_key=True
     )
+
 
     username = db.Column(
         db.String(100),
@@ -27,22 +33,35 @@ class User(db.Model):
         nullable=False
     )
 
+
     email = db.Column(
         db.String(120),
         unique=True,
         nullable=False
     )
 
+
     password_hash = db.Column(
         db.String(255),
         nullable=False
     )
 
+
     role = db.Column(
         db.Enum(Role),
         nullable=False,
-        default=Role.USER
+        default=Role.USER,
+        server_default=text("'USER'")
     )
+
+
+    is_active = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=True,
+        server_default=text("true")
+    )
+
 
     # ==========================
     # Profile Settings
@@ -51,8 +70,10 @@ class User(db.Model):
     timezone = db.Column(
         db.String(100),
         nullable=False,
-        default="UTC"
+        default="UTC",
+        server_default="UTC"
     )
+
 
     webhook_url = db.Column(
         db.String(500),
@@ -66,16 +87,18 @@ class User(db.Model):
 
     created_at = db.Column(
         db.DateTime,
-        server_default=db.func.now(),
-        nullable=False
+        nullable=False,
+        server_default=db.func.now()
     )
+
 
     updated_at = db.Column(
         db.DateTime,
+        nullable=False,
         server_default=db.func.now(),
-        onupdate=db.func.now(),
-        nullable=False
+        onupdate=db.func.now()
     )
+
 
 
     # ==========================
@@ -85,9 +108,18 @@ class User(db.Model):
     applications = db.relationship(
         "JobApplication",
         back_populates="user",
-        lazy=True,
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        lazy=True
     )
+
+
+    notifications = db.relationship(
+        "Notification",
+        backref="user",
+        cascade="all, delete-orphan",
+        lazy=True
+    )
+
 
 
     # ==========================
@@ -113,14 +145,12 @@ class User(db.Model):
         )
 
 
+
     # ==========================
     # Serialization
     # ==========================
 
     def to_dict(self):
-        """
-        Convert user object into JSON response.
-        """
 
         return {
             "id": self.id,
@@ -131,6 +161,7 @@ class User(db.Model):
                 if self.role
                 else None
             ),
+            "is_active": self.is_active,
             "timezone": self.timezone,
             "webhook_url": self.webhook_url,
             "created_at": (
@@ -146,5 +177,7 @@ class User(db.Model):
         }
 
 
+
     def __repr__(self):
+
         return f"<User {self.username}>"

@@ -75,7 +75,9 @@ const useApplicationStore = create(
       // Update Status
       // ============================================
       updateStatus: async (id, status) => {
-        set({ error: null });
+        set({
+          error: null,
+        });
 
         try {
           await API.patch(`/applications/${id}`, {
@@ -110,6 +112,11 @@ const useApplicationStore = create(
       // Delete Application
       // ============================================
       deleteApplication: async (id) => {
+        set({
+          loading: true,
+          error: null,
+        });
+
         try {
           await API.delete(`/applications/${id}`);
 
@@ -117,11 +124,13 @@ const useApplicationStore = create(
             applications: state.applications.filter(
               (app) => app.id !== id
             ),
+            loading: false,
           }));
 
           return true;
         } catch (error) {
           set({
+            loading: false,
             error:
               error.response?.data?.error ||
               error.message ||

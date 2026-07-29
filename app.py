@@ -270,6 +270,13 @@ app.register_blueprint(
     admin_bp
 )
 
+print("=" * 60)
+print("ADMIN BLUEPRINT REGISTERED")
+print("=" * 60)
+
+for rule in app.url_map.iter_rules():
+    print(rule)
+
 app.register_blueprint(
     profile_bp
 )

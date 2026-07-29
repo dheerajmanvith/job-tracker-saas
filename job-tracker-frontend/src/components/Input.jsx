@@ -1,31 +1,45 @@
-import { forwardRef } from "react";
+import React from "react";
 
-const Input = forwardRef(function Input(
-  {
-    label,
-    type = "text",
-    error,
-    ...props
-  },
-  ref
-) {
-  return (
-    <div className="input-group">
-      <label>{label}</label>
+const Input = React.forwardRef(
+  (
+    {
+      label,
+      error,
+      ...props
+    },
+    ref
+  ) => {
 
-      <input
-        ref={ref}
-        type={type}
-        {...props}
-      />
+    const id =
+      props.name ||
+      label.toLowerCase().replace(" ", "-");
 
-      {error && (
-        <p className="error">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-});
+
+    return (
+      <div className="input-group">
+
+        <label htmlFor={id}>
+          {label}
+        </label>
+
+
+        <input
+          id={id}
+          ref={ref}
+          {...props}
+        />
+
+
+        {error && (
+          <p className="error">
+            {error}
+          </p>
+        )}
+
+      </div>
+    );
+  }
+);
+
 
 export default Input;

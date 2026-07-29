@@ -1,12 +1,51 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 
-function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth();
 
-  if (loading) return null; // or a spinner
+export default function ProtectedRoute({
+    children,
+    adminOnly = false
+}) {
 
-  return isAuthenticated ? children : <Navigate to="/" replace />;
+
+    const token =
+        localStorage.getItem("access_token");
+
+
+    const user =
+        JSON.parse(
+            localStorage.getItem("user")
+        );
+
+
+
+    // Not logged in
+    if (!token) {
+
+        return (
+            <Navigate to="/" replace />
+        );
+
+    }
+
+
+
+    // Admin check
+    if (
+        adminOnly &&
+        user?.role !== "ADMIN"
+    ) {
+
+        return (
+            <Navigate
+                to="/dashboard"
+                replace
+            />
+        );
+
+    }
+
+
+
+    return children;
+
 }
-
-export default ProtectedRoute;

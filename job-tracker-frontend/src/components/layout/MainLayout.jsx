@@ -1,13 +1,13 @@
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-function MainLayout() {
+function MainLayout({ children }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
   const handleLogout = () => {
     logout();
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
   };
 
   return (
@@ -54,7 +54,7 @@ function MainLayout() {
           </Link>
 
           <Link
-            to="/applications/new"
+            to="/add"
             style={{
               color: "#ffffff",
               textDecoration: "none",
@@ -87,7 +87,7 @@ function MainLayout() {
           padding: "25px",
         }}
       >
-        <Outlet />
+        {children}
       </main>
     </div>
   );

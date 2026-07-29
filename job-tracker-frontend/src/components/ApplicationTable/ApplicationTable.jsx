@@ -1,57 +1,219 @@
-import React from "react";
-import "./ApplicationTable.css";
 import useApplicationStore from "../../store/applicationStore";
 
-function ApplicationTable({ applications = [] }) {
-  const updateStatus = useApplicationStore((state) => state.updateStatus);
 
-  console.log("ApplicationTable rendered");
+function ApplicationTable({ applications }) {
 
-  if (!Array.isArray(applications)) {
-    return <h3>Invalid application data.</h3>;
-  }
+  const deleteApplication =
+    useApplicationStore(
+      (state) => state.deleteApplication
+    );
 
-  if (applications.length === 0) {
-    return <h3>No applications found.</h3>;
-  }
+  const updateStatus =
+    useApplicationStore(
+      (state) => state.updateStatus
+    );
+
+
+  const handleDelete = async (id) => {
+
+    const confirmed =
+      window.confirm(
+        "Are you sure you want to delete this application?"
+      );
+
+
+    if (!confirmed) return;
+
+
+    await deleteApplication(id);
+
+  };
+
+
+  const handleStatusChange = async (id, newStatus) => {
+
+    await updateStatus(id, newStatus);
+
+  };
+
 
   return (
-    <table className="application-table">
+
+    <table
+      data-testid="application-table"
+      className="application-table w-full border-collapse"
+    >
+
+
       <thead>
+
         <tr>
-          <th>Company</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Notes</th>
+
+          <th>
+            Company
+          </th>
+
+
+          <th>
+            Role
+          </th>
+
+
+          <th>
+            Status
+          </th>
+
+
+          <th>
+            Action
+          </th>
+
+
         </tr>
+
       </thead>
 
+
+
       <tbody>
-        {applications.map((app) => (
-          <tr key={app.id}>
-            <td>{app.company}</td>
 
-            <td>{app.role}</td>
 
-            <td>
-              <select
-                value={app.status || "APPLIED"}
-                onChange={(e) => updateStatus(app.id, e.target.value)}
+        {
+          applications.length === 0 ? (
+
+            <tr>
+
+              <td
+                colSpan="4"
+                className="text-center p-4"
               >
-                <option value="APPLIED">Applied</option>
-                <option value="PHONE_SCREEN">Phone Screen</option>
-                <option value="INTERVIEW">Interview</option>
-                <option value="OFFER">Offer</option>
-                <option value="REJECTED">Rejected</option>
-              </select>
-            </td>
+                No applications found
+              </td>
 
-            <td>{app.notes || "-"}</td>
-          </tr>
-        ))}
+            </tr>
+
+
+          ) : (
+
+
+            applications.map(
+              (application) => (
+
+
+                <tr
+
+                  data-testid="application-row"
+
+                  key={
+                    application.id
+                  }
+
+                >
+
+
+                  <td>
+                    {
+                      application.company
+                    }
+                  </td>
+
+
+
+                  <td>
+                    {
+                      application.role
+                    }
+                  </td>
+
+
+
+                  <td>
+
+                    <select
+                      value={
+                        application.status
+                      }
+                      onChange={(e) =>
+                        handleStatusChange(
+                          application.id,
+                          e.target.value
+                        )
+                      }
+                    >
+
+                      <option value="APPLIED">
+                        Applied
+                      </option>
+
+                      <option value="PHONE_SCREEN">
+                        Phone Screen
+                      </option>
+
+                      <option value="INTERVIEW">
+                        Interview
+                      </option>
+
+                      <option value="OFFER">
+                        Offer
+                      </option>
+
+                      <option value="REJECTED">
+                        Rejected
+                      </option>
+
+                    </select>
+
+                  </td>
+
+
+
+                  <td>
+
+
+                    <button
+
+                      data-testid="delete-button"
+
+                      onClick={() =>
+                        handleDelete(
+                          application.id
+                        )
+                      }
+
+                    >
+
+                      Delete
+
+                    </button>
+
+
+                  </td>
+
+
+
+                </tr>
+
+
+              )
+
+
+            )
+
+
+          )
+
+        }
+
+
       </tbody>
+
+
     </table>
+
   );
+
+
 }
 
-export default React.memo(ApplicationTable);
+
+export default ApplicationTable;

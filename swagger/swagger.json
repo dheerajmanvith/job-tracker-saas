@@ -2,48 +2,317 @@
   "swagger": "2.0",
   "info": {
     "title": "Job Tracker SaaS API",
-    "version": "1.0"
+    "description": "REST API for Job Tracker SaaS built with Flask.",
+    "version": "1.0.0"
   },
+  "host": "127.0.0.1:5000",
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Enter JWT token as: Bearer <token>"
+    }
+  },
   "paths": {
-    "/api/applications": {
-      "get": {
-        "summary": "Get all applications"
-      },
-      "post": {
-        "summary": "Create application"
-      }
-    },
-    "/api/applications/{id}": {
-      "get": {
-        "summary": "Get application by id"
-      },
-      "patch": {
-        "summary": "Update application"
-      },
-      "delete": {
-        "summary": "Delete application"
-      }
-    },
-    "/api/applications/stats": {
-      "get": {
-        "summary": "Get application statistics"
-      }
-    },
     "/register": {
       "post": {
-        "summary": "Register user"
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Register a new user",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Register"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User registered successfully"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
       }
     },
     "/login": {
       "post": {
-        "summary": "Login user"
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Login user",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Login"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
       }
     },
     "/profile": {
       "get": {
-        "summary": "Protected profile endpoint"
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get logged-in user profile",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/applications": {
+      "get": {
+        "tags": [
+          "Applications"
+        ],
+        "summary": "Get all job applications",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of applications"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Applications"
+        ],
+        "summary": "Create a new application",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Application"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Application created"
+          }
+        }
+      }
+    },
+    "/api/applications/{id}": {
+      "get": {
+        "tags": [
+          "Applications"
+        ],
+        "summary": "Get application by ID",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application details"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Applications"
+        ],
+        "summary": "Update application",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Application"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application updated"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Applications"
+        ],
+        "summary": "Delete application",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application deleted"
+          }
+        }
+      }
+    },
+    "/api/applications/stats": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get application statistics",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistics returned"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Register": {
+      "type": "object",
+      "required": [
+        "username",
+        "email",
+        "password"
+      ],
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "Login": {
+      "type": "object",
+      "required": [
+        "email",
+        "password"
+      ],
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "Application": {
+      "type": "object",
+      "required": [
+        "company",
+        "position",
+        "status"
+      ],
+      "properties": {
+        "company": {
+          "type": "string"
+        },
+        "position": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Applied",
+            "Interview",
+            "Offer",
+            "Rejected"
+          ]
+        },
+        "location": {
+          "type": "string"
+        },
+        "salary": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
       }
     }
   }

@@ -11,3 +11,10 @@ dist/
 
 # Frontend
 job-tracker-frontend/dist/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

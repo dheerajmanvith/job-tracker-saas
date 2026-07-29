@@ -1,112 +1,330 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { useAuth } from "../context/AuthContext";
+import {
+    useState
+} from "react";
 
-function Login() {
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  const { t } = useTranslation();
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+import {
+    useNavigate
+} from "react-router-dom";
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+import {
+    useAuth
+} from "../context/AuthContext";
 
-    setError("");
-  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    setLoading(true);
-    setError("");
 
-    try {
-      await login(formData.email, formData.password);
+function Login(){
 
-      navigate("/dashboard");
-    } catch (err) {
-      console.error("Login Error:", err);
 
-      setError(
-        err.response?.data?.error ||
-          t("invalidCredentials")
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    const navigate =
+        useNavigate();
 
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
 
-        <h1 className="mb-6 text-center text-3xl font-bold">
-          {t("login")}
-        </h1>
 
-        {error && (
-          <div className="mb-4 rounded bg-red-100 p-3 text-red-700">
-            {error}
-          </div>
-        )}
+    const {
+        login
+    } = useAuth();
 
-        <form onSubmit={handleSubmit} className="space-y-5">
 
-          <div>
-            <label className="mb-2 block font-medium">
-              {t("email")}
-            </label>
 
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder={t("enterEmail")}
-              required
-              className="w-full rounded-lg border p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
 
-          <div>
-            <label className="mb-2 block font-medium">
-              {t("password")}
-            </label>
+    const [email,setEmail] =
+        useState(
+            "dheeraj1816@gmail.com"
+        );
 
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder={t("enterPassword")}
-              required
-              className="w-full rounded-lg border p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-blue-600 py-3 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {loading ? t("loggingIn") : t("login")}
-          </button>
 
-        </form>
-      </div>
-    </div>
-  );
+    const [password,setPassword] =
+        useState(
+            "123456"
+        );
+
+
+
+    const [loading,setLoading] =
+        useState(false);
+
+
+
+    const [error,setError] =
+        useState("");
+
+
+
+
+
+
+    const handleSubmit = async(e)=>{
+
+
+        e.preventDefault();
+
+
+        setError("");
+
+        setLoading(true);
+
+
+
+        try{
+
+
+            const response =
+                await login(
+                    email,
+                    password
+                );
+
+
+
+            if(response){
+
+
+                /*
+                  Store logged user
+                  for ADMIN route protection
+                */
+
+                if(response.user){
+
+                    localStorage.setItem(
+                        "user",
+                        JSON.stringify(
+                            response.user
+                        )
+                    );
+
+                }
+
+
+
+                navigate(
+                    "/dashboard"
+                );
+
+
+            }
+            else{
+
+
+                setError(
+                    "Invalid email or password"
+                );
+
+            }
+
+
+
+        }
+        catch(err){
+
+
+            console.error(err);
+
+
+            setError(
+                "Login failed"
+            );
+
+
+        }
+        finally{
+
+
+            setLoading(false);
+
+
+        }
+
+
+
+    };
+
+
+
+
+
+
+
+
+    return (
+
+        <div className="min-h-screen flex items-center justify-center">
+
+
+            <div className="bg-white shadow rounded-xl p-8 w-96">
+
+
+                <h1 className="text-3xl font-bold mb-6">
+
+                    Login
+
+                </h1>
+
+
+
+
+                {
+                    error && (
+
+                        <p className="text-red-500 mb-4">
+
+                            {error}
+
+                        </p>
+
+                    )
+                }
+
+
+
+
+
+                <form
+                    onSubmit={handleSubmit}
+                    className="space-y-4"
+                >
+
+
+
+
+                    <div>
+
+                        <label>
+                            Email
+                        </label>
+
+
+                        <input
+
+                            name="email"
+
+                            type="email"
+
+                            placeholder="Enter your email"
+
+                            value={email}
+
+                            onChange={
+                                e =>
+                                setEmail(
+                                    e.target.value
+                                )
+                            }
+
+                            className="border p-2 w-full rounded"
+
+                        />
+
+
+                    </div>
+
+
+
+
+
+
+
+                    <div>
+
+
+                        <label>
+
+                            Password
+
+                        </label>
+
+
+
+                        <input
+
+
+                            name="password"
+
+
+                            type="password"
+
+
+                            placeholder="Enter your password"
+
+
+                            value={password}
+
+
+                            onChange={
+                                e =>
+                                setPassword(
+                                    e.target.value
+                                )
+                            }
+
+
+                            className="border p-2 w-full rounded"
+
+
+                        />
+
+
+                    </div>
+
+
+
+
+
+
+
+                    <button
+
+
+                        type="submit"
+
+
+                        disabled={loading}
+
+
+                        className="bg-blue-600 text-white px-4 py-2 rounded w-full"
+
+
+                    >
+
+
+
+                        {
+                            loading
+                            ?
+                            "Logging in..."
+                            :
+                            "Login"
+                        }
+
+
+
+                    </button>
+
+
+
+
+
+
+                </form>
+
+
+
+
+            </div>
+
+
+
+        </div>
+
+    );
+
+
 }
+
+
 
 export default Login;
