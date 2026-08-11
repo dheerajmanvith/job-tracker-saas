@@ -9,6 +9,8 @@ import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "./context/AuthContext";
 import ErrorBoundary from "./components/ErrorBoundary";
+import OfflineBanner from "./components/OfflineBanner";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import setupAxiosInterceptors from "./utils/axiosInterceptor";
 
 // Initialize Axios interceptors
@@ -21,6 +23,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       storageKey="vite-ui-theme"
     >
       <AuthProvider>
+        <OfflineBanner />
+        <PWAInstallPrompt />
+
         <ErrorBoundary>
           <App />
         </ErrorBoundary>
@@ -28,5 +33,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Toaster />
       </AuthProvider>
     </ThemeProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
