@@ -43,7 +43,7 @@ function useNotifications() {
     let previousCount = 0;
 
     const eventSource = new EventSource(
-      `http://127.0.0.1:5000/api/notifications/stream?token=${token}`
+      `${import.meta.env.VITE_API_URL}/api/notifications/stream?token=${token}`
     );
 
     eventSource.onmessage = async (event) => {

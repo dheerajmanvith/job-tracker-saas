@@ -1,12 +1,17 @@
-import API from "./api";
+import axios from "axios";
 
-export async function searchJobs(query, page = 1) {
+const API = axios.create({
+  baseURL: `${import.meta.env.VITE_API_URL}/api`,
+});
+
+export const searchJobs = async ({ query, location, page = 1 }) => {
   const response = await API.get("/jobs/search", {
     params: {
-      q: query,
+      query,
+      location,
       page,
     },
   });
 
   return response.data;
-}
+};

@@ -18,3 +18,7 @@ job-tracker-frontend/dist/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Local database
+instance/
+*.db
