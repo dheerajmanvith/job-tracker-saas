@@ -16,6 +16,10 @@ const Login = lazy(
   () => import("./pages/Login")
 );
 
+const Register = lazy(
+  () => import("./pages/Register")
+);
+
 const Dashboard = lazy(
   () => import("./pages/Dashboard")
 );
@@ -75,11 +79,13 @@ const ErrorPage = lazy(
 const Loader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
     <div className="flex flex-col items-center gap-3">
+
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
 
       <p className="text-sm font-medium text-muted-foreground">
         Loading...
       </p>
+
     </div>
   </div>
 );
@@ -99,6 +105,7 @@ const withSuspense = (Component) => (
 // ==========================
 
 const router = createBrowserRouter([
+
   // ==========================
   // Public Routes
   // ==========================
@@ -113,6 +120,11 @@ const router = createBrowserRouter([
     element: withSuspense(Login),
   },
 
+  {
+    path: "/register",
+    element: withSuspense(Register),
+  },
+
   // ==========================
   // Protected Routes
   // ==========================
@@ -122,72 +134,57 @@ const router = createBrowserRouter([
     errorElement: withSuspense(ErrorPage),
 
     children: [
-      // ==========================
+
       // Dashboard
-      // ==========================
 
       {
         path: "/dashboard",
         element: withSuspense(Dashboard),
       },
 
-      // ==========================
       // Applications
-      // ==========================
 
       {
         path: "/applications",
         element: withSuspense(Applications),
       },
 
-      // ==========================
       // Analytics
-      // ==========================
 
       {
         path: "/analytics",
         element: withSuspense(Analytics),
       },
 
-      // ==========================
       // Jobs
-      // ==========================
 
       {
         path: "/jobs",
         element: withSuspense(Jobs),
       },
 
-      // ==========================
       // Settings
-      // ==========================
 
       {
         path: "/settings",
         element: withSuspense(Settings),
       },
 
-      // ==========================
       // Add Application
-      // ==========================
 
       {
         path: "/add",
         element: withSuspense(AddApplicationForm),
       },
 
-      // ==========================
       // Component Demo
-      // ==========================
 
       {
         path: "/demo",
         element: withSuspense(ComponentDemo),
       },
 
-      // ==========================
       // Admin Only Route
-      // ==========================
 
       {
         path: "/admin",
@@ -217,6 +214,7 @@ const router = createBrowserRouter([
     path: "*",
     element: withSuspense(NotFound),
   },
+
 ]);
 
 export default router;
