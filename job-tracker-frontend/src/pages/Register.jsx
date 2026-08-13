@@ -40,7 +40,7 @@ function Register() {
       await axios.post(
         `${API_URL}/api/v2/auth/register`,
         {
-          name,
+          username: name,
           email,
           password,
         }
